@@ -4,6 +4,7 @@
 #include "../common/kbsrm.h"
 
 #include <QDateTime>
+#include "rpcservice\json\rpcjsonreport.h"
 
 using namespace KB;
 
@@ -124,4 +125,35 @@ void TestServer::s_ReceiveMsg( unsigned int uConnectId, const QString& strText )
 	QByteArray buffer = strText.toUtf8();
 	std::reverse(buffer.begin(), buffer.end());
 	//lcService::Instance().SendMsg(uConnectId, QString(buffer));
+}
+
+void TestServer::on_btnDisconnect_clicked()
+{
+	if (MSRPC::RpcActLink* pRpcActLink =
+		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>())
+	{
+		foreach(QListWidgetItem *item, ui.lvUser->selectedItems())
+		{
+			unsigned int uSID = item->text().toUInt(0, 16);
+
+			pRpcActLink->Disconnect(uSID);
+		}
+	}
+}
+
+void TestServer::on_btnReport_clicked()
+{
+	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
+
+	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
+	{
+		foreach(QListWidgetItem *item, ui.lvUser->selectedItems())
+		{
+			unsigned int uSID = item->text().toUInt(0, 16);
+
+			rep->SendReport(uSID, QString::fromLocal8Bit("这是服务主动推送报告测试。"));
+		}
+	}
+
+
 }

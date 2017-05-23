@@ -7,17 +7,36 @@
 
 namespace MSRPC
 {
-	template<char const REPNAME[], class T, ,unsigned int VERSION = 1>
+	template<char const REPNAME[], class T = void, class TS = MSRPC::JSON, unsigned int VERSION = 1>
 	class RpcTplReport : public RpcReportBase
 	{
 	public:
-		void SendReport(unsigned int uSID, const QSharedPointer<T>& spT)
+		typedef RpcTplReport<REPNAME, T, TS, VERSION> TPL;
+		typedef T Report;
+
+		typedef fastdelegate::FastDelegate3<unsigned int, qint64, const T&> ReportReceiver;
+
+	public:
+		void SendReport(unsigned int uSID, const T& spT)
 		{
-			MsMiddleWareBase* pBase = new MsMiddleWareData<T>(spT);
-			QMetaObject::invokeMethod(this, "ActSend",
+			MsMiddleWareBase* pBase = new MsMiddleWareData<T, TS>(spT);
+			pBase->SetVersion(VERSION);
+
+			QMetaObject::invokeMethod(this, "ActSendReport",
 				Q_ARG(unsigned int, uSID),
-				Q_ARG(unsigned int, VERSION),
 				Q_ARG(MsMiddleWareBase*, pBase));
+		}
+
+		void ConnectReportReceiver(const ReportReceiver& dgReportReceiver)
+		{
+			m_vecReport.append(dgReportReceiver);
+		}
+
+		void DisconnectReportReceiver(const ReportReceiver& dgReportReceiver)
+		{
+			m_vecReport.erase(
+				std::remove(m_vecReport.begin(), m_vecReport.end(), dgReportReceiver),
+				m_vecReport.end());
 		}
 
 	public:
@@ -31,34 +50,34 @@ namespace MSRPC
 			return RepName();
 		}
 
-		virtual void RecvReport(unsigned int uSID, qint64 nTime, const JsonIArchive& json) override
+		virtual void RecvReport(unsigned int uSID, qint64 nTime, IArchiveBase* iArchive) override
 		{
-			MsMiddleWareData<T>* pData = new MsMiddleWareData<T>();
-			pData->Parse(json);
+			///解析数据
+			MsMiddleWareData<T, TS>* pData = new MsMiddleWareData<T, TS>();
+			pData->Parse(iArchive);
 
-			if (m_mapReceiver.isEmpty())
-			{
-				ActRecv(uSID, nTime, pData);
-			}
-			else
-			{
-				for (MapReceiver::const_iterator citorRece = m_mapReceiver.constBegin();
-					citorRece != m_mapReceiver.constEnd(); ++citorRece)
-				{
-					for (QVector<const char *>::const_iterator citorFunctor = citorRece->constBegin();
-						citorFunctor != citorRece->constEnd(); ++citorFunctor)
-					{
-						QMetaObject::invokeMethod(citorRece.key(), *citorFunctor,
-							Q_ARG(unsigned int, uSID),
-							Q_ARG(qint64, nTime),
-							QArgument<QSharedPointer<T> >(pData->spTName, pData->spT)
-							);
-					}
-				}
-
-				delete pData;
-			}
+			///切换线程
+			QMetaObject::invokeMethod(this, "ActRecvReport",
+				Q_ARG(unsigned int, uSID),
+				Q_ARG(qint64, nTime),
+				Q_ARG(MsMiddleWareBase*, pData));
 		}
+
+		virtual void ActRecvReport(unsigned int uSID, const qint64& nTime, MsMiddleWareBase* pBase) override
+		{
+			MsMiddleWareData<T, TS>* pData = static_cast<MsMiddleWareData<T, TS>*>(pBase);
+
+			for (QVector<ReportReceiver>::const_iterator citor = m_vecReport.constBegin();
+				citor != m_vecReport.constEnd(); ++citor)
+			{
+				(*citor)(uSID, nTime, pData->spT);
+			}
+
+			delete pData;
+		}
+
+	protected:
+		QVector<ReportReceiver> m_vecReport;
 
 	};
 

@@ -63,9 +63,6 @@
     <ClInclude Include="..\..\..\..\include\rpcservice\json\msmwjsondata.hpp">
       <Filter>Header Files\json</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\rpcservice\json\rmjsonreport.h">
-      <Filter>Header Files\json</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\rpcservice\rpcdistributor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -88,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\rpcservice\json\rpcjsonrequest.h">
+      <Filter>Header Files\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\rpcservice\json\rpcjsonreport.h">
       <Filter>Header Files\json</Filter>
     </ClInclude>
   </ItemGroup>
@@ -118,9 +118,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\source\rpcservice\rpcservice.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\source\rpcservice\json\rmjsonreport.cpp">
-      <Filter>Source Files\json</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\source\rpcservice\rpcdistributor.cpp">
       <Filter>Source Files</Filter>
@@ -171,6 +168,9 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\source\rpcservice\json\rpcjsonrequest.cpp">
+      <Filter>Source Files\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\source\rpcservice\json\rpcjsonreport.cpp">
       <Filter>Source Files\json</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,6 @@
-#ifndef __RMJSONREPORT_H__
-#define __RMJSONREPORT_H__
+#ifndef __RPCJSONREPORT_H__
+#define __RPCJSONREPORT_H__
+
 
 #include "../rpcdistributor.h"
 
@@ -8,11 +9,11 @@ namespace MSRPC
 	class MsMiddleWareBase;
 	class RpcReportBase;
 
-class RPCSERVICE_EXPORT RmJsonReport : public RpcDistributor
+class RPCSERVICE_EXPORT RpcJsonReport : public RpcDistributor
 {
 public:
-	RmJsonReport();
-	~RmJsonReport();
+	RpcJsonReport();
+	~RpcJsonReport();
 
 	template<class T>
 	T* RegReport()
@@ -25,7 +26,7 @@ public:
 	template<class T>
 	T* GetReport() const
 	{
-		return GetReportBase(T::RepName());
+		return static_cast<T*>(GetReportBase(T::RepName()));
 	}
 
 	enum {
@@ -48,4 +49,5 @@ private:
 
 }
 
-#endif // __RMJSONREPORT_H__
+
+#endif // __RPCJSONREPORT_H__

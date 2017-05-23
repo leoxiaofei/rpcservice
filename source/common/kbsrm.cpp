@@ -1,6 +1,6 @@
 #include "kbsrm.h"
 
-#include "rpcservice/json/rmjsonreport.h"
+#include "rpcservice/json/rpcjsonreport.h"
 #include "rpcservice/json/rpcjsonrequest.h"
 
 
@@ -22,9 +22,12 @@ namespace KB
 
 	char const szReqSwitch[] = "Switch";
 
+	char const szRepReport[] = "Report";
+
 	void InitKBSRM()
 	{
-		MSRPC::RpcJsonRequest* pJsonRequest = new MSRPC::RpcJsonRequest;
+		MSRPC::RpcJsonRequest* pJsonRequest = 
+			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonRequest>();
 // 		pJsonRequest->RegRequest<KbReqShow>();
 // 		pJsonRequest->RegRequest<KbReqSize>();
  		pJsonRequest->RegRequest<KbReqPos>();
@@ -33,7 +36,10 @@ namespace KB
 		pJsonRequest->RegRequest<KbReqTest>();
 		pJsonRequest->RegRequest<KbReqTest2>();
 
-		KBSRM::Instance().RegDistributor(pJsonRequest);
+		MSRPC::RpcJsonReport* pJsonReport =
+			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonReport>();
+
+		pJsonReport->RegReport<KbRepReport>();
 	}
 
 }

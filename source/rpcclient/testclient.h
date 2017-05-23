@@ -22,6 +22,7 @@ protected:
 	void PosRespond(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bSuccess, const QPoint& pos);
 	void SetPosRespond(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bSuccess);
 	void TestRespond(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bSuccess, const CustomDataR& data);
+	void TestReport(unsigned int uSID, qint64 nTime, const QString& strValue);
 
 protected slots:
 	void on_btnConnect_clicked();

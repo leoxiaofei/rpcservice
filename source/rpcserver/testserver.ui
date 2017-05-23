@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>687</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,7 +52,7 @@
       <property name="title">
        <string>User</string>
       </property>
-      <layout class="QVBoxLayout" name="vLayoutUser">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QListWidget" name="lvUser">
          <property name="sizePolicy">
@@ -61,7 +61,28 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
         </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btnReport">
+           <property name="text">
+            <string>Report</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnDisconnect">
+           <property name="text">
+            <string>Disconnect</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

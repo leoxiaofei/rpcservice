@@ -27,7 +27,8 @@ protected:
 
 protected slots:
 	void s_ReceiveMsg(unsigned int uConnectId, const QString& strText);
-
+	void on_btnDisconnect_clicked();
+	void on_btnReport_clicked();
 
 private:
 	Ui::TestServerClass ui;

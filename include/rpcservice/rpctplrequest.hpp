@@ -27,6 +27,7 @@ namespace MSRPC
 			MsMiddleWareBase* pBase = new MsMiddleWareData<Q, TS>(spT);
 			pBase->SetVersion(VERSION);
 			
+			///切换线程
 			QMetaObject::invokeMethod(this, "ActSendRequest",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
@@ -40,6 +41,7 @@ namespace MSRPC
 			MsMiddleWareBase* pBase = new MsMiddleWareData<A, TS>(spT);
 			pBase->SetVersion(VERSION);
 
+			///切换线程
 			QMetaObject::invokeMethod(this, "ActSendRespond",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
@@ -112,7 +114,7 @@ namespace MSRPC
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase)
+		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase) override
 		{
 			Responder<A> spRespond(fastdelegate::MakeDelegate(this, &TPL::SendRespond), uSID, uSequence);
 			MsMiddleWareData<Q, TS>* pData = static_cast<MsMiddleWareData<Q, TS>* >(pBase);
@@ -126,7 +128,7 @@ namespace MSRPC
 			delete pData;
 		}
 
-		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase)
+		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase) override
 		{
 			MsMiddleWareData<A, TS>* pData = static_cast<MsMiddleWareData<A, TS>* >(pBase);
 

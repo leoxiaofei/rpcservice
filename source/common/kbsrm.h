@@ -8,6 +8,7 @@
 #include "rpcservice/rpctplrequest.hpp"
 #include "rpcservice/json/msmwjsondata.hpp"
 #include "rapidjson/msjson/msjsonserialize_qt.hpp"
+#include "rpcservice/rpctplreport.hpp"
 
 
 typedef SingleTemplate<MSRPC::RmManager> KBSRM;
@@ -68,6 +69,11 @@ namespace KB
 	typedef MSRPC::RpcTplRequest<KB::szReqSetPos, QPoint, void> KbReqSetPos;
 	typedef MSRPC::RpcTplRequest<KB::szReqTest, CustomDataT, CustomDataR> KbReqTest;
 	typedef MSRPC::RpcTplRequest<KB::szReqTest2, void, void> KbReqTest2;
+
+
+	extern const char szRepReport[];
+	typedef MSRPC::RpcTplReport<KB::szRepReport, QString> KbRepReport;
+
 
 	void InitKBSRM();
 }

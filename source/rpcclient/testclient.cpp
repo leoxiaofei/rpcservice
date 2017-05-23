@@ -3,6 +3,7 @@
 #include "../common/kbsrm.h"
 #include "rpcservice/json/rpcjsonrequest.h"
 #include <QDateTime>
+#include "rpcservice/json/rpcjsonreport.h"
 
 using namespace KB;
 
@@ -42,6 +43,13 @@ TestClient::TestClient(QWidget *parent, Qt::WindowFlags flags)
 		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>();
 	pRpcActLink->SetStateDelegate(fastdelegate::MakeDelegate(this, &TestClient::ConnectState));
 
+	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
+
+	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
+	{
+		rep->ConnectReportReceiver(
+			fastdelegate::MakeDelegate(this, &TestClient::TestReport));
+	}
 }
 
 TestClient::~TestClient()
@@ -99,6 +107,11 @@ void TestClient::TestRespond(unsigned int uSID, unsigned int uSequence,
 	qint64 nTime, bool bSuccess, const CustomDataR& data)
 {
 	Log("TestRespond:" + QString("c:%1;d:%2").arg(data.c).arg(data.d));
+}
+
+void TestClient::TestReport(unsigned int uSID, qint64 nTime, const QString& strValue)
+{
+	Log("TestReport:" + strValue);
 }
 
 void TestClient::on_btnSend_clicked()

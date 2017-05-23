@@ -1,4 +1,4 @@
-#include "json/rmjsonreport.h"
+#include "json/rpcjsonreport.h"
 #include "rpcreportbase.h"
 #include "rapidjson/msjson/msjsonserialize.hpp"
 #include "rapidjson/msjson/msjsonadapter.hpp"
@@ -37,30 +37,30 @@ namespace MSRPC
 
 	typedef QHash<QLatin1String, RpcReportBase*> HsReport;
 
-	class RmJsonReport::Impl
+	class RpcJsonReport::Impl
 	{
 	public:
 		HsReport hsReport;
 	};
 
-	RmJsonReport::RmJsonReport()
+	RpcJsonReport::RpcJsonReport()
 		: RpcDistributor()
 		, m_pImpl(new Impl)
 	{
 
 	}
 
-	RmJsonReport::~RmJsonReport()
+	RpcJsonReport::~RpcJsonReport()
 	{
 		qDeleteAll(m_pImpl->hsReport);
 	}
 
-	qint8 RmJsonReport::GetType() const
+	qint8 RpcJsonReport::GetType() const
 	{
 		return DT_JSON_REP;
 	}
 
-	void RmJsonReport::ReceiveData(unsigned int uSID, QByteArray& baData)
+	void RpcJsonReport::ReceiveData(unsigned int uSID, QByteArray& baData)
 	{
 		SPtrDocument spRoot(new rapidjson::Document);
 		spRoot->Parse<0>(baData.data());
@@ -79,13 +79,13 @@ namespace MSRPC
 		}
 	}
 	
-	void RmJsonReport::RegReportBase(RpcReportBase* pReportBase)
+	void RpcJsonReport::RegReportBase(RpcReportBase* pReportBase)
 	{
-		pReportBase->SetReportDelegate(fastdelegate::MakeDelegate(this, &RmJsonReport::SendDate));
+		pReportBase->SetReportDelegate(fastdelegate::MakeDelegate(this, &RpcJsonReport::SendDate));
 		m_pImpl->hsReport[QLatin1String(pReportBase->GetName())] = pReportBase;
 	}
 
-	void RmJsonReport::SendDate(unsigned int uSID, const RpcReportBase* pBase, MsMiddleWareBase* mdData)
+	void RpcJsonReport::SendDate(unsigned int uSID, const RpcReportBase* pBase, MsMiddleWareBase* mdData)
 	{
 		rapidjson::Value vValue;
 		JsonOArchive json(mdData->GetVersion());
@@ -107,7 +107,7 @@ namespace MSRPC
 		m_dgSendData(uSID, baData, GetType());
 	}
 
-	MSRPC::RpcReportBase* RmJsonReport::GetReportBase(const char* szReportName) const
+	MSRPC::RpcReportBase* RpcJsonReport::GetReportBase(const char* szReportName) const
 	{
 		return m_pImpl->hsReport.value(QLatin1String(szReportName), 0);
 	}

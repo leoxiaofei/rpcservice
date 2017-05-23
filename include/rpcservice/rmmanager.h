@@ -38,13 +38,21 @@ public:
 	RpcDistributor* GetDistributor(int nRmDisType) const;
 
 	template<class T>
-	T* GetDistributor() const
+	inline T* RegDistributor()
+	{
+		T* p = new T;
+		RegDistributor(p);
+		return p;
+	}
+
+	template<class T>
+	inline T* GetDistributor() const
 	{
 		return static_cast<T*>(GetDistributor(T::Type));
 	}
 
 	template<class T>
-	T* RegRmAction()
+	inline T* RegRmAction()
 	{
 		T* tRet = new T;
 		RegRpcActionBase(tRet);
@@ -52,7 +60,7 @@ public:
 	}
 
 	template<class T>
-	T* GetRmAction() const
+	inline T* GetRmAction() const
 	{
 		return static_cast<T*>(
 			GetRpcActionBase(T::AName()));

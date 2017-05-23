@@ -74,7 +74,7 @@
     <ClInclude Include="..\..\..\..\include\mstools\FastDelegate.h" />
     <ClInclude Include="..\..\..\..\include\mstools\idCreater.hpp" />
     <ClInclude Include="..\..\..\..\include\rpcservice\json\msmwjsondata.hpp" />
-    <ClInclude Include="..\..\..\..\include\rpcservice\json\rmjsonreport.h" />
+    <ClInclude Include="..\..\..\..\include\rpcservice\json\rpcjsonreport.h" />
     <ClInclude Include="..\..\..\..\include\rpcservice\json\rpcjsonrequest.h" />
     <CustomBuild Include="..\..\..\..\include\rpcservice\lcmanager.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing lcmanager.h...</Message>
@@ -168,7 +168,7 @@
     <ClInclude Include="..\..\..\..\include\rpcservice\rpcservice_global.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\source\rpcservice\json\rmjsonreport.cpp" />
+    <ClCompile Include="..\..\..\..\source\rpcservice\json\rpcjsonreport.cpp" />
     <ClCompile Include="..\..\..\..\source\rpcservice\json\rpcjsonrequest.cpp" />
     <ClCompile Include="..\..\..\..\source\rpcservice\lcmanager.cpp" />
     <ClCompile Include="..\..\..\..\source\rpcservice\lcsession.cpp" />

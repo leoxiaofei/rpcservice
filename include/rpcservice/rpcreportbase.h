@@ -22,28 +22,19 @@ namespace MSRPC
 	public:
 		virtual const char* GetName() const = 0;
 
-		void ConnectReceiver(QObject* objReceiver, const char* szFunctor);
-		void DisconnectReceiver(QObject* objReceiver, const char* szFunctor);
-
-	public:
-		virtual void RecvReport(unsigned int uSID, qint64 nTime, IArchiveBase* iArchive) = 0;
+	protected:
 		void SetReportDelegate(const SendReportDelegate& dgSendReport);
 
 	protected:
-		Q_INVOKABLE void ActSend(unsigned int uSID, unsigned int uVersion, MsMiddleWareBase* pBase);
-		Q_INVOKABLE void ActRecv(unsigned int uSID, const qint64& nTime, MsMiddleWareBase* pBase);
+		Q_INVOKABLE void ActSendReport(unsigned int uSID, MsMiddleWareBase* pBase);
 
-	signals:
-		void signal_ActRecv(unsigned int uSID, const qint64& nTime, const QSharedPointer<MsMiddleWareBase>& spBase);
+		virtual void RecvReport(unsigned int uSID, qint64 nTime, IArchiveBase* iArchive) = 0;
 
-	protected slots:
-		void slot_ReceiverDestroy(QObject* objReceiver);
+		Q_INVOKABLE virtual void ActRecvReport(unsigned int uSID, const qint64& nTime, MsMiddleWareBase* pBase) = 0;
 
 	protected:
+		friend class RpcJsonReport;
 		SendReportDelegate						m_dgSendReport;
-
-		typedef QMap<QObject*, QVector<const char*> > MapReceiver;
-		MapReceiver								m_mapReceiver;
 	};
 
 }
