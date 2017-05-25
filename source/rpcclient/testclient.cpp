@@ -40,7 +40,7 @@ TestClient::TestClient(QWidget *parent, Qt::WindowFlags flags)
 	}
 
 	MSRPC::RpcActLink* pRpcActLink =
-		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>();
+		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 	pRpcActLink->SetStateDelegate(fastdelegate::MakeDelegate(this, &TestClient::ConnectState));
 
 	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
@@ -60,7 +60,7 @@ TestClient::~TestClient()
 void TestClient::on_btnConnect_clicked()
 {
 	MSRPC::RpcActLink* pRpcActLink =
-		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>();
+		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 	if (pRpcActLink->Connect("127.0.0.1", 3240))
 	{
 		ui.btnConnect->setEnabled(false);
@@ -93,23 +93,22 @@ void TestClient::ConnectState(unsigned int uSID, bool bSuccess)
 	}
 }
 
-void TestClient::PosRespond(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bSuccess, const QPoint& pos)
+void TestClient::PosRespond(unsigned int uSID, unsigned int uSequence, bool bSuccess, const QPoint& pos)
 {
 	Log("PosRespond:" + QString("%1:%2").arg(pos.x()).arg(pos.y()));
 }
 
-void TestClient::SetPosRespond(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bSuccess)
+void TestClient::SetPosRespond(unsigned int uSID, unsigned int uSequence, bool bSuccess)
 {
 	Log("SetPosRespond.");
 }
 
-void TestClient::TestRespond(unsigned int uSID, unsigned int uSequence, 
-	qint64 nTime, bool bSuccess, const CustomDataR& data)
+void TestClient::TestRespond(unsigned int uSID, unsigned int uSequence, bool bSuccess, const CustomDataR& data)
 {
 	Log("TestRespond:" + QString("c:%1;d:%2").arg(data.c).arg(data.d));
 }
 
-void TestClient::TestReport(unsigned int uSID, qint64 nTime, const QString& strValue)
+void TestClient::TestReport(unsigned int uSID, const QString& strValue)
 {
 	Log("TestReport:" + strValue);
 }
@@ -165,7 +164,7 @@ void TestClient::on_btnTest2_clicked()
 void TestClient::on_btnDisconnect_clicked()
 {
 	MSRPC::RpcActLink* pRpcActLink =
-		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>();
+		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 	pRpcActLink->Disconnect(m_uServerId);
 }
 

@@ -30,7 +30,7 @@ public:
 
 	Q_INVOKABLE void SendData(unsigned int uSID, const QByteArray& baData, quint8 eType);
 
-	QTcpServer*	GetRmServer() const;
+	QTcpServer*	GetServer() const;
 	RmSession* GetRmSession(unsigned int uSID) const;
 	QThread*	GetThread() const;
 
@@ -52,7 +52,7 @@ public:
 	}
 
 	template<class T>
-	inline T* RegRmAction()
+	inline T* RegRpcAction()
 	{
 		T* tRet = new T;
 		RegRpcActionBase(tRet);
@@ -60,7 +60,7 @@ public:
 	}
 
 	template<class T>
-	inline T* GetRmAction() const
+	inline T* GetRpcAction() const
 	{
 		return static_cast<T*>(
 			GetRpcActionBase(T::AName()));

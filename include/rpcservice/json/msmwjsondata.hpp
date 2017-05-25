@@ -14,6 +14,8 @@ namespace MSRPC
 
 	};
 
+	typedef MSRPC::JSON TSTYPE;
+
 	template <class T>
 	class MsMiddleWareData<T, MSRPC::JSON> : public MsMiddleWareBase
 	{

@@ -15,7 +15,6 @@ namespace MSRPC
 	{
 		"report":<报告名称>
 		"version":<接口版本号>
-		"time":<Unix时间戳毫秒精度>
 		"payload":<数据内容>
 	}
 	
@@ -23,13 +22,12 @@ namespace MSRPC
 
 	namespace
 	{
-		enum ElemText { ET_REPORT, ET_VERSION, ET_TIME, ET_PAYLOAD };
+		enum ElemText { ET_REPORT, ET_VERSION, ET_PAYLOAD };
 
 		const char* szElemText[] =
 		{
 			"report",
 			"version",
-			"time",
 			"payload",
 		};
 
@@ -72,9 +70,8 @@ namespace MSRPC
 				m_pImpl->hsReport.constFind(QLatin1String(itrFind->value.GetString()));
 			if (ciFind != m_pImpl->hsReport.constEnd())
 			{
-				qint64 nTime = (*spRoot)[szElemText[ET_TIME]].GetInt64();
 				unsigned int uVersion = (*spRoot)[szElemText[ET_VERSION]].GetUint();
-				(*ciFind)->RecvReport(uSID, nTime, &MSRPC::IArchive_r(MSRPC::JsonIArchive(spRoot, &(*spRoot)[szElemText[ET_PAYLOAD]], uVersion)));
+				(*ciFind)->RecvReport(uSID, &MSRPC::IArchive_r(MSRPC::JsonIArchive(spRoot, &(*spRoot)[szElemText[ET_PAYLOAD]], uVersion)));
 			}
 		}
 	}
@@ -96,7 +93,6 @@ namespace MSRPC
 		spRoot->SetObject();
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_REPORT]), rapidjson::StringRef(pBase->GetName()), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_VERSION]), json.GetVersion(), spRoot->GetAllocator());
-		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_TIME]), QDateTime::currentMSecsSinceEpoch(), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_PAYLOAD]), *json.GetCurNode(), spRoot->GetAllocator());
 		
 		QByteArray baData;

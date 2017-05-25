@@ -121,7 +121,7 @@ namespace MSRPC
 		emit signal_SessionStart(pSession->GetSID());
 	}
 
-	QLocalServer* LcManager::GetRmServer() const
+	QLocalServer* LcManager::GetServer() const
 	{
 		return m_pImpl->ptServer.data();
 	}
@@ -274,7 +274,7 @@ namespace MSRPC
 
 	void LcManager::InitActions()
 	{
-		RpcActLink* p = RegRmAction<RpcActLink>();
+		RpcActLink* p = RegRpcAction<RpcActLink>();
 		p->SetManager(this,	fastdelegate::MakeDelegate(this, &LcManager::IsIdle));
 	}
 

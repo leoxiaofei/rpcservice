@@ -28,9 +28,9 @@ namespace MSRPC
 	protected:
 		Q_INVOKABLE void ActSendReport(unsigned int uSID, MsMiddleWareBase* pBase);
 
-		virtual void RecvReport(unsigned int uSID, qint64 nTime, IArchiveBase* iArchive) = 0;
+		virtual void RecvReport(unsigned int uSID, IArchiveBase* iArchive) = 0;
 
-		Q_INVOKABLE virtual void ActRecvReport(unsigned int uSID, const qint64& nTime, MsMiddleWareBase* pBase) = 0;
+		Q_INVOKABLE virtual void ActRecvReport(unsigned int uSID, MsMiddleWareBase* pBase) = 0;
 
 	protected:
 		friend class RpcJsonReport;

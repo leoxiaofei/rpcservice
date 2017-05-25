@@ -35,11 +35,11 @@ protected:
 	Q_INVOKABLE void ActSendRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase);
 	Q_INVOKABLE void ActSendRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase);
 
-	virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, IArchiveBase* iArchive) = 0;
-	virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, IArchiveBase* iArchive) = 0;
+	virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive) = 0;
+	virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive) = 0;
 
-	Q_INVOKABLE virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase) = 0;
-	Q_INVOKABLE virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase) = 0;
+	Q_INVOKABLE virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase) = 0;
+	Q_INVOKABLE virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase) = 0;
 
 protected:
 	friend class RpcJsonRequest;

@@ -7,14 +7,14 @@
 
 namespace MSRPC
 {
-	template<char const REPNAME[], class T = void, class TS = MSRPC::JSON, unsigned int VERSION = 1>
+	template<char const REPNAME[], class T = void, class TS = TSTYPE, unsigned int VERSION = 1>
 	class RpcTplReport : public RpcReportBase
 	{
 	public:
 		typedef RpcTplReport<REPNAME, T, TS, VERSION> TPL;
 		typedef T Report;
 
-		typedef fastdelegate::FastDelegate3<unsigned int, qint64, const T&> ReportReceiver;
+		typedef fastdelegate::FastDelegate2<unsigned int, const T&> ReportReceiver;
 
 	public:
 		void SendReport(unsigned int uSID, const T& spT)
@@ -50,7 +50,7 @@ namespace MSRPC
 			return RepName();
 		}
 
-		virtual void RecvReport(unsigned int uSID, qint64 nTime, IArchiveBase* iArchive) override
+		virtual void RecvReport(unsigned int uSID, IArchiveBase* iArchive) override
 		{
 			///解析数据
 			MsMiddleWareData<T, TS>* pData = new MsMiddleWareData<T, TS>();
@@ -59,18 +59,17 @@ namespace MSRPC
 			///切换线程
 			QMetaObject::invokeMethod(this, "ActRecvReport",
 				Q_ARG(unsigned int, uSID),
-				Q_ARG(qint64, nTime),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvReport(unsigned int uSID, const qint64& nTime, MsMiddleWareBase* pBase) override
+		virtual void ActRecvReport(unsigned int uSID, MsMiddleWareBase* pBase) override
 		{
 			MsMiddleWareData<T, TS>* pData = static_cast<MsMiddleWareData<T, TS>*>(pBase);
 
 			for (QVector<ReportReceiver>::const_iterator citor = m_vecReport.constBegin();
 				citor != m_vecReport.constEnd(); ++citor)
 			{
-				(*citor)(uSID, nTime, pData->spT);
+				(*citor)(uSID, pData->spT);
 			}
 
 			delete pData;

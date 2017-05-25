@@ -8,7 +8,7 @@
 namespace MSRPC
 {
 	//////////////////////////////////////////////////////////////////////////
-	template<char const REQNAME[], class Q, class A = void, class TS = MSRPC::JSON, unsigned int VERSION = 1>
+	template<char const REQNAME[], class Q, class A = void, class TS = TSTYPE, unsigned int VERSION = 1>
 	class RpcTplRequest : public RpcRequestBase
 	{
 	public:
@@ -16,8 +16,8 @@ namespace MSRPC
 		typedef Q Question;
 		typedef A Answer;
 
-		typedef fastdelegate::FastDelegate4<unsigned int, qint64, const Q&, Responder<A>& > RequestReceiver;
-		typedef fastdelegate::FastDelegate5<unsigned int, unsigned int, qint64, bool, const A&> RespondReceiver;
+		typedef fastdelegate::FastDelegate3<unsigned int, const Q&, Responder<A>& > RequestReceiver;
+		typedef fastdelegate::FastDelegate4<unsigned int, unsigned int, bool, const A&> RespondReceiver;
 
 	public:
 		int SendRequest(unsigned int uSID, const Q& spT)
@@ -85,7 +85,7 @@ namespace MSRPC
 		}
 
 	protected:
-		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, IArchiveBase* iArchive) override
+		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive) override
 		{
 			///解析数据
 			MsMiddleWareData<Q, TS>* pData = new MsMiddleWareData<Q, TS>();
@@ -95,11 +95,10 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRequest",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, IArchiveBase* iArchive) override
+		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive) override
 		{
 			///解析数据
 			MsMiddleWareData<A, TS>* pData = new MsMiddleWareData<A, TS>();
@@ -109,12 +108,11 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRespond",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(bool, bReturn),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase) override
+		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase) override
 		{
 			Responder<A> spRespond(fastdelegate::MakeDelegate(this, &TPL::SendRespond), uSID, uSequence);
 			MsMiddleWareData<Q, TS>* pData = static_cast<MsMiddleWareData<Q, TS>* >(pBase);
@@ -122,20 +120,20 @@ namespace MSRPC
 			for(QVector<RequestReceiver>::const_iterator citor = m_vecRequest.constBegin();
 				citor != m_vecRequest.constEnd(); ++citor)
 			{
-				(*citor)(uSID, nTime, pData->spT, spRespond);
+				(*citor)(uSID, pData->spT, spRespond);
 			}
 
 			delete pData;
 		}
 
-		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase) override
+		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase) override
 		{
 			MsMiddleWareData<A, TS>* pData = static_cast<MsMiddleWareData<A, TS>* >(pBase);
 
 			for(QVector<RespondReceiver>::const_iterator citor = m_vecRespond.constBegin();
 				citor != m_vecRespond.constEnd(); ++citor)
 			{
-				(*citor)(uSID, uSequence, nTime, bReturn, pData->spT);
+				(*citor)(uSID, uSequence, bReturn, pData->spT);
 			}
 
 			delete pData;
@@ -156,8 +154,8 @@ namespace MSRPC
 		typedef void Question;
 		typedef A Answer;
 
-		typedef fastdelegate::FastDelegate3<unsigned int, qint64, Responder<A>& > RequestReceiver;
-		typedef fastdelegate::FastDelegate5<unsigned int, unsigned int, qint64, bool, const A&> RespondReceiver;
+		typedef fastdelegate::FastDelegate2<unsigned int, Responder<A>& > RequestReceiver;
+		typedef fastdelegate::FastDelegate4<unsigned int, unsigned int, bool, const A&> RespondReceiver;
 
 	public:
 		int SendRequest(unsigned int uSID)
@@ -223,7 +221,7 @@ namespace MSRPC
 		}
 
 	protected:
-		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, IArchiveBase* iArchive)
+		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<void, TS>* pData = new MsMiddleWareData<void, TS>();
@@ -233,11 +231,10 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRequest",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, IArchiveBase* iArchive)
+		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<A, TS>* pData = new MsMiddleWareData<A, TS>();
@@ -247,12 +244,11 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRespond",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(bool, bReturn),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase)
+		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase)
 		{
 			Responder<A> spRespond(fastdelegate::MakeDelegate(this, &TPL::SendRespond), uSID, uSequence);
 			MsMiddleWareData<void, TS>* pData = static_cast<MsMiddleWareData<void, TS>* >(pBase);
@@ -260,20 +256,20 @@ namespace MSRPC
 			for(QVector<RequestReceiver>::const_iterator citor = m_vecRequest.constBegin();
 				citor != m_vecRequest.constEnd(); ++citor)
 			{
-				(*citor)(uSID, nTime, spRespond);
+				(*citor)(uSID, spRespond);
 			}
 
 			delete pData;
 		}
 
-		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase)
+		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase)
 		{
 			MsMiddleWareData<A, TS>* pData = static_cast<MsMiddleWareData<A, TS>* >(pBase);
 
 			for(QVector<RespondReceiver>::const_iterator citor = m_vecRespond.constBegin();
 				citor != m_vecRespond.constEnd(); ++citor)
 			{
-				(*citor)(uSID, uSequence, nTime, bReturn, pData->spT);
+				(*citor)(uSID, uSequence, bReturn, pData->spT);
 			}
 
 			delete pData;
@@ -294,8 +290,8 @@ namespace MSRPC
 		typedef Q Question;
 		typedef void Answer;
 
-		typedef fastdelegate::FastDelegate4<unsigned int, qint64, const Q&, Responder<void>& > RequestReceiver;
-		typedef fastdelegate::FastDelegate4<unsigned int, unsigned int, qint64, bool> RespondReceiver;
+		typedef fastdelegate::FastDelegate3<unsigned int, const Q&, Responder<void>& > RequestReceiver;
+		typedef fastdelegate::FastDelegate3<unsigned int, unsigned int, bool> RespondReceiver;
 
 	public:
 		int SendRequest(unsigned int uSID, const Q& spT)
@@ -361,7 +357,7 @@ namespace MSRPC
 		}
 
 	protected:
-		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, IArchiveBase* iArchive)
+		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<Q, TS>* pData = new MsMiddleWareData<Q, TS>();
@@ -371,11 +367,10 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRequest",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, IArchiveBase* iArchive)
+		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<void, TS>* pData = new MsMiddleWareData<void, TS>();
@@ -385,12 +380,11 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRespond",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(bool, bReturn),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase)
+		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase)
 		{
 			Responder<void> spRespond(fastdelegate::MakeDelegate(this, &TPL::SendRespond), uSID, uSequence);
 			MsMiddleWareData<Q, TS>* pData = static_cast<MsMiddleWareData<Q, TS>* >(pBase);
@@ -398,20 +392,20 @@ namespace MSRPC
 			for(QVector<RequestReceiver>::const_iterator citor = m_vecRequest.constBegin();
 				citor != m_vecRequest.constEnd(); ++citor)
 			{
-				(*citor)(uSID, nTime, pData->spT, spRespond);
+				(*citor)(uSID, pData->spT, spRespond);
 			}
 
 			delete pData;
 		}
 
-		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase)
+		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase)
 		{
 			MsMiddleWareData<void, TS>* pData = static_cast<MsMiddleWareData<void, TS>* >(pBase);
 
 			for(QVector<RespondReceiver>::const_iterator citor = m_vecRespond.constBegin();
 				citor != m_vecRespond.constEnd(); ++citor)
 			{
-				(*citor)(uSID, uSequence, nTime, bReturn);
+				(*citor)(uSID, uSequence, bReturn);
 			}
 
 			delete pData;
@@ -432,8 +426,8 @@ namespace MSRPC
 		typedef void Question;
 		typedef void Answer;
 
-		typedef fastdelegate::FastDelegate3<unsigned int, qint64, Responder<void>& > RequestReceiver;
-		typedef fastdelegate::FastDelegate4<unsigned int, unsigned int, qint64, bool> RespondReceiver;
+		typedef fastdelegate::FastDelegate2<unsigned int, Responder<void>& > RequestReceiver;
+		typedef fastdelegate::FastDelegate3<unsigned int, unsigned int, bool> RespondReceiver;
 
 	public:
 		int SendRequest(unsigned int uSID)
@@ -499,7 +493,7 @@ namespace MSRPC
 		}
 
 	protected:
-		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, IArchiveBase* iArchive)
+		virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<void, TS>* pData = new MsMiddleWareData<void, TS>();
@@ -509,11 +503,10 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRequest",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, IArchiveBase* iArchive)
+		virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive)
 		{
 			///解析数据
 			MsMiddleWareData<void, TS>* pData = new MsMiddleWareData<void, TS>();
@@ -523,12 +516,11 @@ namespace MSRPC
 			QMetaObject::invokeMethod(this, "ActRecvRespond",
 				Q_ARG(unsigned int, uSID),
 				Q_ARG(unsigned int, uSequence),
-				Q_ARG(qint64, nTime),
 				Q_ARG(bool, bReturn),
 				Q_ARG(MsMiddleWareBase*, pData));
 		}
 
-		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, const qint64& nTime, MsMiddleWareBase* pBase)
+		virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase)
 		{
 			Responder<void> spRespond(fastdelegate::MakeDelegate(this, &TPL::SendRespond), uSID, uSequence);
 			MsMiddleWareData<void, TS>* pData = static_cast<MsMiddleWareData<void, TS>* >(pBase);
@@ -536,20 +528,20 @@ namespace MSRPC
 			for(QVector<RequestReceiver>::const_iterator citor = m_vecRequest.constBegin();
 				citor != m_vecRequest.constEnd(); ++citor)
 			{
-				(*citor)(uSID, nTime, spRespond);
+				(*citor)(uSID, spRespond);
 			}
 
 			delete pData;
 		}
 
-		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, const qint64& nTime, bool bReturn, MsMiddleWareBase* pBase)
+		virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase)
 		{
 			MsMiddleWareData<void, TS>* pData = static_cast<MsMiddleWareData<void, TS>* >(pBase);
 
 			for(QVector<RespondReceiver>::const_iterator citor = m_vecRespond.constBegin();
 				citor != m_vecRespond.constEnd(); ++citor)
 			{
-				(*citor)(uSID, uSequence, nTime, bReturn);
+				(*citor)(uSID, uSequence, bReturn);
 			}
 
 			delete pData;

@@ -25,7 +25,6 @@ namespace MSRPC
 	{
 	"respond":<请求名称>
 	"version":<接口版本号>
-	"time":<Unix时间戳毫秒精度>
 	"sequence":<命令序号>
 	"return":<true/false>
 	"payload":<数据内容（可选）>
@@ -35,14 +34,13 @@ namespace MSRPC
 
 	namespace
 	{
-		enum ElemText { ET_REQUEST, ET_RESPOND, ET_VERSION, ET_TIME, ET_SEQUENCE, ET_RETURN, ET_PAYLOAD };
+		enum ElemText { ET_REQUEST, ET_RESPOND, ET_VERSION, ET_SEQUENCE, ET_RETURN, ET_PAYLOAD };
 
 		const char* szElemText[] =
 		{
 			"request",
 			"respond",
 			"version",
-			"time",
 			"sequence",
 			"return",
 			"payload",
@@ -102,13 +100,12 @@ namespace MSRPC
 					m_pImpl->hsRequest.constFind(QLatin1String(itrFind->value.GetString()));
 				if (ciFind != m_pImpl->hsRequest.constEnd())
 				{
-					qint64 nTime = (*spRoot)[szElemText[ET_TIME]].GetInt64();
 					unsigned int uVersion = (*spRoot)[szElemText[ET_VERSION]].GetUint();
 					unsigned int uSequence = (*spRoot)[szElemText[ET_SEQUENCE]].GetUint();
 
 					rapidjson::Value::MemberIterator itrPayload = spRoot->FindMember(szElemText[ET_PAYLOAD]);
 
-					(*ciFind)->RecvRequest(uSID, uSequence, nTime, &IArchive_r(JsonIArchive(spRoot, 
+					(*ciFind)->RecvRequest(uSID, uSequence, &IArchive_r(JsonIArchive(spRoot, 
 						(itrPayload != spRoot->MemberEnd() ? &itrPayload->value : 0), uVersion)));
 				}
 				break;
@@ -132,14 +129,13 @@ namespace MSRPC
 					m_pImpl->hsRequest.constFind(QLatin1String(itrFind->value.GetString()));
 				if (ciFind != m_pImpl->hsRequest.constEnd())
 				{
-					qint64 nTime = (*spRoot)[szElemText[ET_TIME]].GetInt64();
 					unsigned int uVersion = (*spRoot)[szElemText[ET_VERSION]].GetUint();
 					unsigned int uSequence = (*spRoot)[szElemText[ET_SEQUENCE]].GetUint();
 					bool bReturn = (*spRoot)[szElemText[ET_RETURN]].GetBool();
 
 					rapidjson::Value::MemberIterator itrPayload = spRoot->FindMember(szElemText[ET_PAYLOAD]);
 
-					(*ciFind)->RecvRespond(uSID, uSequence, nTime, bReturn, &MSRPC::IArchive_r(JsonIArchive(spRoot,
+					(*ciFind)->RecvRespond(uSID, uSequence, bReturn, &MSRPC::IArchive_r(JsonIArchive(spRoot,
 						(itrPayload != spRoot->MemberEnd() ? &itrPayload->value : 0), uVersion)));
 				}
 			}
@@ -167,7 +163,6 @@ namespace MSRPC
 		spRoot->SetObject();
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_REQUEST]), rapidjson::StringRef(pBase->GetName()), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_VERSION]), json.GetVersion(), spRoot->GetAllocator());
-		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_TIME]), QDateTime::currentMSecsSinceEpoch(), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_SEQUENCE]), uSequence, spRoot->GetAllocator());
 
 		if (json.GetCurNode())
@@ -195,7 +190,6 @@ namespace MSRPC
 		spRoot->SetObject();
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_RESPOND]), rapidjson::StringRef(pBase->GetName()), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_VERSION]), json.GetVersion(), spRoot->GetAllocator());
-		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_TIME]), QDateTime::currentMSecsSinceEpoch(), spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_SEQUENCE]), uSequence, spRoot->GetAllocator());
 		spRoot->AddMember(rapidjson::StringRef(szElemText[ET_RETURN]), bReturn, spRoot->GetAllocator());
 

@@ -1,5 +1,5 @@
-#ifndef __RMJSONREQUEST_H__
-#define __RMJSONREQUEST_H__
+#ifndef RPCJSONREQUEST_H__
+#define RPCJSONREQUEST_H__
 
 #include "../rpcdistributor.h"
 
@@ -49,4 +49,6 @@ namespace MSRPC
 	};
 
 }
-#endif // __RMJSONREQUEST_H__
+
+
+#endif // RPCJSONREQUEST_H__

@@ -16,7 +16,7 @@ TestServer::TestServer(QWidget *parent, Qt::WindowFlags flags)
 	KB::InitKBSRM();
 
 	MSRPC::RpcActLink* pRpcActLink =
-		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>();
+		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 
 	if (!pRpcActLink->Listen("127.0.0.1", 3240))
 	{
@@ -50,13 +50,6 @@ TestServer::TestServer(QWidget *parent, Qt::WindowFlags flags)
 		reqTest->ConnectRequestReceiver(
 			fastdelegate::MakeDelegate(this, &TestServer::TestRequest));
 	}
-
-// 
-// 	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
-// 	{
-// 		reqPos->ConnectRequestReceiver(
-// 			fastdelegate::MakeDelegate(this, &TestServer::PosRequest));
-// 	}
 }
 
 TestServer::~TestServer()
@@ -93,20 +86,20 @@ void TestServer::ConnectState(unsigned int uSID, bool bSuccess)
 }
 
 ///客户端请求Pos
-void TestServer::PosRequest(unsigned int uSID, qint64 nTime, MSRPC::Responder<QPoint>& ret)
+void TestServer::PosRequest(unsigned int uSID, MSRPC::Responder<QPoint>& ret)
 {
 	///返回QPoint
 	Log(QString::fromLocal8Bit("客户端请求获取Pos"));
 	ret(true, QPoint(1, 2));
 }
 
-void TestServer::SetPosRequest(unsigned int uSID, qint64 nTime, const QPoint& pos, MSRPC::Responder<void>& ret)
+void TestServer::SetPosRequest(unsigned int uSID, const QPoint& pos, MSRPC::Responder<void>& ret)
 {
 	Log(QString::fromLocal8Bit("客户端请求设置Pos:") + QString("%1:%2").arg(pos.x()).arg(pos.y()));
 	ret(true);
 }
 
-void TestServer::TestRequest(unsigned int uSID, qint64 nTime, 
+void TestServer::TestRequest(unsigned int uSID, 
 	const CustomDataT& pos, MSRPC::Responder<CustomDataR>& ret)
 {
 	Log(QString::fromLocal8Bit("客户端测试请求: CustomDataT:") + QString("a:%1;b:%2").arg(pos.a).arg(pos.b));
@@ -130,7 +123,7 @@ void TestServer::s_ReceiveMsg( unsigned int uConnectId, const QString& strText )
 void TestServer::on_btnDisconnect_clicked()
 {
 	if (MSRPC::RpcActLink* pRpcActLink =
-		KBSRM::Instance().GetRmAction<MSRPC::RpcActLink>())
+		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>())
 	{
 		foreach(QListWidgetItem *item, ui.lvUser->selectedItems())
 		{

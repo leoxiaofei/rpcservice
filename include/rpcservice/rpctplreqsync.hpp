@@ -30,7 +30,7 @@ namespace MSRPC
 			return m_loop.exec(QEventLoop::ExcludeUserInputEvents) == 1 && m_bReturn;
 		}
 
-		void RespondReceiver(unsigned int uSID, unsigned int uSequence, qint64 nTime, bool bReturn, const Answer& data)
+		void RespondReceiver(unsigned int uSID, unsigned int uSequence, bool bReturn, const Answer& data)
 		{
 			m_data = data;
 			m_bReturn = bReturn;

@@ -21,9 +21,9 @@ protected:
 
 	void ConnectState(unsigned int uSID, bool bSuccess);
 
-	void PosRequest(unsigned int uSID, qint64 nTime, MSRPC::Responder<QPoint>& ret);
-	void SetPosRequest(unsigned int uSID, qint64 nTime, const QPoint& pos, MSRPC::Responder<void>& ret);
-	void TestRequest(unsigned int uSID, qint64 nTime, const CustomDataT& pos, MSRPC::Responder<CustomDataR>& ret);
+	void PosRequest(unsigned int uSID, MSRPC::Responder<QPoint>& ret);
+	void SetPosRequest(unsigned int uSID, const QPoint& pos, MSRPC::Responder<void>& ret);
+	void TestRequest(unsigned int uSID, const CustomDataT& pos, MSRPC::Responder<CustomDataR>& ret);
 
 protected slots:
 	void s_ReceiveMsg(unsigned int uConnectId, const QString& strText);

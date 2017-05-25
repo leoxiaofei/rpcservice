@@ -31,12 +31,20 @@ public:
 
 	Q_INVOKABLE void SendData(unsigned int uSID, const QByteArray& baData, quint8 eType);
 
-	QLocalServer* GetRmServer() const;
+	QLocalServer* GetServer() const;
 	LcSession* GetLcSession(unsigned int uSID) const;
 	QThread* GetThread() const;
 
 	void RegDistributor(RpcDistributor* pDistributor);
 	RpcDistributor* GetDistributor(int nDisType) const;
+
+	template<class T>
+	T* RegDistributor()
+	{
+		T* t = new T;
+		RegDistributor(t);
+		return t;
+	}
 
 	template<class T>
 	T* GetDistributor() const
@@ -45,7 +53,7 @@ public:
 	}
 
 	template<class T>
-	T* RegRmAction()
+	T* RegRpcAction()
 	{
 		T* tRet = new T;
 		RegRpcActionBase(tRet);
@@ -53,7 +61,7 @@ public:
 	}
 
 	template<class T>
-	T* GetRmAction() const
+	T* GetRpcAction() const
 	{
 		return static_cast<T*>(
 			GetRpcActionBase(T::AName()));
