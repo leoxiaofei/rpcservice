@@ -93,12 +93,12 @@ namespace MSRPC
 	class MsMiddleWareData<void, MSRPC::JSON> : public MsMiddleWareBase
 	{
 	public:
-		virtual bool Bale(OArchiveBase* oArchive)
+		virtual bool Bale(OArchiveBase*)
 		{
 			return true;
 		}
 
-		virtual bool Parse(IArchiveBase* iArchive)
+		virtual bool Parse(IArchiveBase*)
 		{
 			return true;
 		}

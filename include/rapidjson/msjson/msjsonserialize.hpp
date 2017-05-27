@@ -249,8 +249,8 @@ namespace MSRPC
 		template <template <class, class> class L, class K, class V>
 		void in_serialize(const rapidjson::Value& vCurNode, L<K, V>& mapValue)
 		{
-			for (rapidjson::Value::ConstMemberIterator itor = vNode.MemberBegin();
-				itor != vNode.MemberEnd(); ++itor)
+			for (rapidjson::Value::ConstMemberIterator itor = vCurNode.MemberBegin();
+				itor != vCurNode.MemberEnd(); ++itor)
 			{
 				K key;
 				FromStrVal(itor->name, key);
