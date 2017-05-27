@@ -7,6 +7,8 @@
 #include <QString>
 #include <QSize>
 #include <QPoint>
+#include <QMap>
+#include <QHash>
 
 namespace MSRPC
 {
@@ -54,6 +56,68 @@ namespace MSRPC
 		vCurNode.AddMember(rapidjson::StringRef(szElemText[ET_WIDTH]), tValue.width(), aAllocator);
 		vCurNode.AddMember(rapidjson::StringRef(szElemText[ET_HEIGHT]), tValue.height(), aAllocator);
 	}
+
+	template<>
+	inline void JsonOArchive_Helper::ToStrVal(const QString& val, rapidjson::Value& vCurNode)
+	{
+		in_serialize(val, vCurNode);
+	}
+
+	template<>
+	inline void JsonIArchive_Helper::FromStrVal(const rapidjson::Value& vCurNode, QString& val)
+	{
+		in_serialize(vCurNode, val);
+	}
+
+	template<class K, class V>
+	class IterApt<QMap, K, V>
+	{
+	public:
+		static K& Key(typename QMap<K,V>::iterator& itor)
+		{
+			return itor.key();
+		}
+
+		static V& Value(typename QMap<K,V>::iterator& itor)
+		{
+			return itor.value();
+		}
+
+		static const K& Key(typename QMap<K,V>::const_iterator& itor)
+		{
+			return itor.key();
+		}
+
+		static const V& Value(typename QMap<K,V>::const_iterator& itor)
+		{
+			return itor.value();
+		}
+	};
+
+	template<class K, class V>
+	class IterApt<QHash, K, V>
+	{
+	public:
+		static K& Key(typename QHash<K,V>::iterator& itor)
+		{
+			return itor.key();
+		}
+
+		static V& Value(typename QHash<K,V>::iterator& itor)
+		{
+			return itor.value();
+		}
+
+		static const K& Key(typename QHash<K,V>::const_iterator& itor)
+		{
+			return itor.key();
+		}
+
+		static const V& Value(typename QHash<K,V>::const_iterator& itor)
+		{
+			return itor.value();
+		}
+	};
 
 
 	template <>

@@ -5,9 +5,35 @@
 #include "../pointer.h"
 #include "../writer.h"
 #include <memory>
+#include <map>
 
 namespace MSRPC
 {
+	template<template <class, class> class L, class K, class V>
+	class IterApt
+	{
+	public:
+		static K& Key(typename L<K,V>::iterator& itor)
+		{
+			return itor->first;
+		}
+
+		static V& Value(typename L<K,V>::iterator& itor)
+		{
+			return itor->second;
+		}
+
+		static const K& Key(typename L<K,V>::const_iterator& itor)
+		{
+			return itor->first;
+		}
+
+		static const V& Value(typename L<K,V>::const_iterator& itor)
+		{
+			return itor->second;
+		}
+	};
+
 	class JsonOArchive_Helper
 	{
 	public:
@@ -98,23 +124,25 @@ namespace MSRPC
 		template <template <class, class> class L, class K, class V>
 		void in_serialize(const L<K, V>& mapValue, rapidjson::Value& vCurNode)
 		{
-// 			vCurNode.SetObject();
-// 
-// 			for (L<K, V>::const_iterator itor = mapValue.begin(); itor != mapValue.end(); ++itor)
-// 			{
-// 				rapidjson::Value vKey;
-// 				ToValString(itor->first, vKey);
-// 
-// 				rapidjson::Value vValue;
-// 				in_serialize(itor->second, vValue);
-// 
-// 				vCurNode.AddMember(vKey, vValue, aAllocator);
-// 			}
+ 			vCurNode.SetObject();
+ 
+			for (L<K, V>::const_iterator itor = mapValue.begin(); itor != mapValue.end(); ++itor)
+ 			{
+				typedef IterApt<L, K, V> IA;
+
+ 				rapidjson::Value vKey;
+				ToStrVal(IA::Key(itor), vKey);
+ 
+ 				rapidjson::Value vValue;
+				in_serialize(IA::Value(itor), vValue);
+ 
+ 				vCurNode.AddMember(vKey, vValue, aAllocator);
+ 			}
 		}
 
 	protected:
 		template<class T>
-		void ToValString(const T& val, rapidjson::Value& vCurNode)
+		void ToStrVal(const T& val, rapidjson::Value& vCurNode)
 		{
 			std::ostringstream ss;
 			ss << val;
@@ -122,7 +150,7 @@ namespace MSRPC
 		}
 
 		template<>
-		void ToValString(const std::string& val, rapidjson::Value& vCurNode)
+		void ToStrVal(const std::string& val, rapidjson::Value& vCurNode)
 		{
 			in_serialize(val, vCurNode);
 		}
@@ -221,8 +249,31 @@ namespace MSRPC
 		template <template <class, class> class L, class K, class V>
 		void in_serialize(const rapidjson::Value& vCurNode, L<K, V>& mapValue)
 		{
-			
+			for (rapidjson::Value::ConstMemberIterator itor = vNode.MemberBegin();
+				itor != vNode.MemberEnd(); ++itor)
+			{
+				K key;
+				FromStrVal(itor->name, key);
+				
+				V value;
+				in_serialize(itor->value, value);
 
+				mapValue[key] = value;
+			}
+
+		}
+	protected:
+		template<class T>
+		void FromStrVal(const rapidjson::Value& vCurNode, T& val)
+		{
+			std::istringstream ss(vCurNode.GetString());
+			ss >> val;
+		}
+
+		template<>
+		void FromStrVal(const rapidjson::Value& vCurNode, std::string& val)
+		{
+			in_serialize(vCurNode, val);
 		}
 
 	private:
