@@ -32,7 +32,6 @@ namespace MSRPC
 		{
 			in_serialize(tValue, vNode);
 		}
-
 	protected:
 		template <class T>
 		void in_serialize(const T& tValue, rapidjson::Value& vCurNode)
@@ -94,6 +93,38 @@ namespace MSRPC
 				in_serialize(*itor, vValue);
 				vCurNode.PushBack(vValue, aAllocator);
 			}
+		}
+
+		template <template <class, class> class L, class K, class V>
+		void in_serialize(const L<K, V>& mapValue, rapidjson::Value& vCurNode)
+		{
+// 			vCurNode.SetObject();
+// 
+// 			for (L<K, V>::const_iterator itor = mapValue.begin(); itor != mapValue.end(); ++itor)
+// 			{
+// 				rapidjson::Value vKey;
+// 				ToValString(itor->first, vKey);
+// 
+// 				rapidjson::Value vValue;
+// 				in_serialize(itor->second, vValue);
+// 
+// 				vCurNode.AddMember(vKey, vValue, aAllocator);
+// 			}
+		}
+
+	protected:
+		template<class T>
+		void ToValString(const T& val, rapidjson::Value& vCurNode)
+		{
+			std::ostringstream ss;
+			ss << val;
+			in_serialize(ss.str(), vCurNode);
+		}
+
+		template<>
+		void ToValString(const std::string& val, rapidjson::Value& vCurNode)
+		{
+			in_serialize(val, vCurNode);
 		}
 
 	private:
@@ -185,6 +216,13 @@ namespace MSRPC
 				in_serialize(*itr, tValue);
 				listValue.push_back(tValue);
 			}
+		}
+
+		template <template <class, class> class L, class K, class V>
+		void in_serialize(const rapidjson::Value& vCurNode, L<K, V>& mapValue)
+		{
+			
+
 		}
 
 	private:

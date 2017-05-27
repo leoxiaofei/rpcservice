@@ -18,7 +18,7 @@ TestServer::TestServer(QWidget *parent, Qt::WindowFlags flags)
 	MSRPC::RpcActLink* pRpcActLink =
 		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 
-	if (!pRpcActLink->Listen("127.0.0.1", 3240))
+	if (!pRpcActLink->Listen("0.0.0.0", 3240))
 	{
 		Log("Listen 3240 Failed!");
 	}

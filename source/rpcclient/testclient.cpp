@@ -61,7 +61,8 @@ void TestClient::on_btnConnect_clicked()
 {
 	MSRPC::RpcActLink* pRpcActLink =
 		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
-	if (pRpcActLink->Connect("127.0.0.1", 3240))
+
+	if (pRpcActLink->Connect(ui.edtIP->text(), ui.spPort->value()))
 	{
 		ui.btnConnect->setEnabled(false);
 	}

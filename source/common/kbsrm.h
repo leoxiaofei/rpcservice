@@ -11,7 +11,7 @@
 #include "rpcservice/rpctplreport.hpp"
 
 
-typedef SingleTemplate<MSRPC::RmManager> KBSRM;
+typedef SingleTemplate<MSRPC::LcManager> KBSRM;
 
 class A
 {
