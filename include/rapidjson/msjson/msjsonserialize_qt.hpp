@@ -9,6 +9,7 @@
 #include <QPoint>
 #include <QMap>
 #include <QHash>
+#include <QStringList>
 
 namespace MSRPC
 {
@@ -24,6 +25,19 @@ namespace MSRPC
 		QByteArray ba = tValue.toUtf8();
 		vCurNode.SetString(ba.data(), ba.size(), aAllocator);
 	}
+
+	template <>
+	inline void JsonIArchive_Helper::in_serialize(const rapidjson::Value& vCurNode, QStringList& tValue)
+	{
+		in_serialize(vCurNode, (QList<QString>&)tValue);
+	}
+
+	template <>
+	inline void JsonOArchive_Helper::in_serialize(const QStringList& tValue, rapidjson::Value& vCurNode)
+	{
+		in_serialize((const QList<QString>&)tValue, vCurNode);
+	}
+
 
 	namespace
 	{
