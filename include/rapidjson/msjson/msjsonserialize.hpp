@@ -97,6 +97,13 @@ namespace MSRPC
 		}
 
 		template <>
+		void in_serialize(const float& tValue, rapidjson::Value& vCurNode)
+		{
+			vCurNode.SetFloat(tValue);
+		}
+
+
+		template <>
 		void in_serialize(const bool& tValue, rapidjson::Value& vCurNode)
 		{
 			vCurNode.SetBool(tValue);
@@ -208,6 +215,12 @@ namespace MSRPC
 		void in_serialize(const rapidjson::Value& vCurNode, double& tValue)
 		{
 			tValue = vCurNode.GetDouble();
+		}
+
+		template <>
+		void in_serialize(const rapidjson::Value& vCurNode, float& tValue)
+		{
+			tValue = vCurNode.GetFloat();
 		}
 
 		template <>
