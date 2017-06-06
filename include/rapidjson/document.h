@@ -520,10 +520,6 @@ public:
             flags_ |= kIntFlag | kInt64Flag;
     }
 
-	explicit GenericValue(float f) RAPIDJSON_NOEXCEPT : data_(), flags_(kNumberFloatFlag) {
-		data_.n.f.f = f; 
-	}
-
     //! Constructor for int64_t value.
     explicit GenericValue(int64_t i64) RAPIDJSON_NOEXCEPT : data_(), flags_(kNumberInt64Flag) {
         data_.n.i64 = i64;
@@ -801,8 +797,7 @@ public:
     bool IsInt64()  const { return (flags_ & kInt64Flag) != 0; }
     bool IsUint64() const { return (flags_ & kUint64Flag) != 0; }
     bool IsDouble() const { return (flags_ & kDoubleFlag) != 0; }
-    bool IsFloat()  const { return (flags_ & kFloatFlag) != 0; }
-	bool IsString() const { return (flags_ & kStringFlag) != 0; }
+    bool IsString() const { return (flags_ & kStringFlag) != 0; }
 
     //@}
 
@@ -1455,13 +1450,11 @@ public:
     int64_t GetInt64() const    { RAPIDJSON_ASSERT(flags_ & kInt64Flag); return data_.n.i64; }
     uint64_t GetUint64() const  { RAPIDJSON_ASSERT(flags_ & kUint64Flag); return data_.n.u64; }
 
-	float GetFloat() const { RAPIDJSON_ASSERT(flags_ & kFloatFlag);  return data_.n.f.f;   }
     double GetDouble() const {
         RAPIDJSON_ASSERT(IsNumber());
         if ((flags_ & kDoubleFlag) != 0)                return data_.n.d;   // exact type, no conversion.
         if ((flags_ & kIntFlag) != 0)                   return data_.n.i.i; // int -> double
         if ((flags_ & kUintFlag) != 0)                  return data_.n.u.u; // unsigned -> double
-		if ((flags_ & kFloatFlag) != 0)                  return data_.n.f.f; // unsigned -> double
         if ((flags_ & kInt64Flag) != 0)                 return (double)data_.n.i64; // int64_t -> double (may lose precision)
         RAPIDJSON_ASSERT((flags_ & kUint64Flag) != 0);  return (double)data_.n.u64; // uint64_t -> double (may lose precision)
     }
@@ -1471,7 +1464,7 @@ public:
     GenericValue& SetInt64(int64_t i64)     { this->~GenericValue(); new (this) GenericValue(i64);  return *this; }
     GenericValue& SetUint64(uint64_t u64)   { this->~GenericValue(); new (this) GenericValue(u64);  return *this; }
     GenericValue& SetDouble(double d)       { this->~GenericValue(); new (this) GenericValue(d);    return *this; }
-	GenericValue& SetFloat(float f)         { this->~GenericValue(); new (this) GenericValue(f);    return *this; }
+
     //@}
 
     //!@name String
@@ -1591,7 +1584,6 @@ private:
         kInt64Flag = 0x1000,
         kUint64Flag = 0x2000,
         kDoubleFlag = 0x4000,
-		kFloatFlag = 0x8000,
         kStringFlag = 0x100000,
         kCopyFlag = 0x200000,
         kInlineStrFlag = 0x400000,
@@ -1605,8 +1597,7 @@ private:
         kNumberInt64Flag = kNumberType | kNumberFlag | kInt64Flag,
         kNumberUint64Flag = kNumberType | kNumberFlag | kUint64Flag,
         kNumberDoubleFlag = kNumberType | kNumberFlag | kDoubleFlag,
-		kNumberFloatFlag  = kNumberType | kNumberFlag | kFloatFlag,
-        kNumberAnyFlag = kNumberType | kNumberFlag | kIntFlag | kInt64Flag | kUintFlag | kUint64Flag | kDoubleFlag | kFloatFlag,
+        kNumberAnyFlag = kNumberType | kNumberFlag | kIntFlag | kInt64Flag | kUintFlag | kUint64Flag | kDoubleFlag,
         kConstStringFlag = kStringType | kStringFlag,
         kCopyStringFlag = kStringType | kStringFlag | kCopyFlag,
         kShortStringFlag = kStringType | kStringFlag | kCopyFlag | kInlineStrFlag,
@@ -1653,10 +1644,6 @@ private:
             unsigned u;
             char padding2[4];
         }u;
-		struct F {
-			float f;
-			char padding3[4];
-		}f;
 #else
         struct I {
             char padding[4];
@@ -1666,10 +1653,6 @@ private:
             char padding2[4];
             unsigned u;
         }u;
-		struct F {
-			char padding3[4];
-			float f;
-		}f;
 #endif
         int64_t i64;
         uint64_t u64;
