@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="rpcservice"
-	ProjectGUID="{9B37C41D-CEEE-49B9-B9B5-DA59E3317129}"
+	ProjectGUID="{31DD91F8-07DF-4C5A-A4CF-C8E0C5519449}"
 	RootNamespace="rpcservice"
 	Keyword="Qt4VSv1.0"
 	TargetFrameworkVersion="0"
