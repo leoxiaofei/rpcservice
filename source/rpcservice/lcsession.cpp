@@ -124,7 +124,7 @@ namespace MSRPC
 
 			do
 			{
-				if (pSokcet->bytesAvailable() <= 0 && !pSokcet->waitForReadyRead(6000))
+				if (!pSokcet->waitForReadyRead(6000))
 				{
 					break;
 				}

@@ -145,6 +145,7 @@ namespace MSRPC
 
 			if (ciFind != m_pImpl->mapSession.constEnd())
 			{
+				qDebug()<<baData;
 				(*ciFind)->SendData(baData, eType);
 			}
 		}
@@ -243,6 +244,7 @@ namespace MSRPC
 		QMap<quint8, RpcDistributor*>::const_iterator ciFind = m_pImpl->mapDistributor.constFind(eType);
 		if (ciFind != m_pImpl->mapDistributor.constEnd())
 		{
+			qDebug()<<baData;
 			(*ciFind)->ReceiveData(uSID, baData);
 		}
 		else
