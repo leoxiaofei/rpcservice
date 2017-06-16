@@ -1,6 +1,7 @@
 #include "lcsession.h" 
 
 #include <QLocalSocket>
+#include <QThread>
 
 namespace MSRPC
 {
@@ -23,12 +24,11 @@ namespace MSRPC
 		Impl(unsigned int sid, QLocalSocket* so)
 		: uSID(sid)
 		, pSokcet(so)
-		, vecMaxBagBuffer(g_uMaxBagSize + 1)
 		{}
 
 		unsigned int		uSID;
-		QLocalSocket*			pSokcet;
-		QVector<char>		vecMaxBagBuffer;
+		QLocalSocket*		pSokcet;
+		char				szMaxBagBuffer[g_uMaxBagSize + 1];
 		QByteArray			baReceive;
 		ReceiveDataDelegate	dgReceiveData;
 	};
@@ -65,7 +65,10 @@ namespace MSRPC
 
 	void LcSession::SendData(const QByteArray& baData, quint8 eType)
 	{
+		//qDebug() << "ThreadId:" << QThread::currentThreadId ();
 		QLocalSocket* pSokcet = m_pImpl->pSokcet;
+		char* szMaxBagBuffer = m_pImpl->szMaxBagBuffer;
+
 		int nLen = baData.size();
 		int nCurPos = 0;
 
@@ -84,17 +87,22 @@ namespace MSRPC
 			++rmHeader.uCurBag;
 			rmHeader.uBagSize = qMin<int>(g_uMaxBagSize, nLen - nCurPos);
 
-			nSend = pSokcet->write((const char *)(&rmHeader), sizeof(RmHeader));
-			nSend = pSokcet->write(baData.data() + nCurPos, rmHeader.uBagSize);
+			memcpy(szMaxBagBuffer, (const char*)&rmHeader, sizeof(RmHeader));
+			memcpy(szMaxBagBuffer + sizeof(RmHeader), baData.data() + nCurPos, rmHeader.uBagSize);
+
+			nSend = pSokcet->write(szMaxBagBuffer, rmHeader.uBagSize + sizeof(RmHeader));
+// 			nSend = pSokcet->write((const char *)(&rmHeader), sizeof(RmHeader));
+// 			nSend = pSokcet->write(baData.data() + nCurPos, rmHeader.uBagSize);
 			nCurPos += rmHeader.uBagSize;
 		}
 	}
 
 	void LcSession::slot_ReadyRead()
 	{
+		//qDebug()<<"ThreadId:"<<QThread::currentThreadId ();
 		bool bSuccess(false);
 		QLocalSocket* pSokcet = m_pImpl->pSokcet;
-		char* szMaxBagBuffer = m_pImpl->vecMaxBagBuffer.data();
+		char* szMaxBagBuffer = m_pImpl->szMaxBagBuffer;
 		QByteArray& baReceive = m_pImpl->baReceive;
 
 		do
