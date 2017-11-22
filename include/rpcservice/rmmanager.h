@@ -2,6 +2,8 @@
 #define __RMMANAGER_H__
 
 #include "rpcservice_global.h"
+#include "mstools\FastDelegate.h"
+#include "distmanager.h"
 
 #include <QObject>
 #include <QMap>
@@ -15,13 +17,15 @@ namespace MSRPC
 	class RpcDistributor;
 	class RpcActionBase;
 
-class RPCSERVICE_EXPORT RmManager : public QObject
+	typedef fastdelegate::FastDelegate3<unsigned int, QByteArray&, quint8> ReceiveDataDelegate;
+
+class RPCSERVICE_EXPORT RmComMgr : public QObject
 {
 	Q_OBJECT
 	class Impl;
 public:
-	RmManager();
-	~RmManager();
+	RmComMgr();
+	~RmComMgr();
 
 	void Listen(const QString& strHostAddr, quint16 uPort);
 	void Connect(const QString& strHostName, quint16 uPort);
@@ -34,22 +38,22 @@ public:
 	RmSession* GetRmSession(unsigned int uSID) const;
 	QThread*	GetThread() const;
 
-	void RegDistributor(RpcDistributor* pRmDistributor);
-	RpcDistributor* GetDistributor(int nRmDisType) const;
-
-	template<class T>
-	inline T* RegDistributor()
-	{
-		T* p = new T;
-		RegDistributor(p);
-		return p;
-	}
-
-	template<class T>
-	inline T* GetDistributor() const
-	{
-		return static_cast<T*>(GetDistributor(T::Type));
-	}
+// 	void RegDistributor(RpcDistributor* pRmDistributor);
+// 	RpcDistributor* GetDistributor(int nRmDisType) const;
+// 
+// 	template<class T>
+// 	inline T* RegDistributor()
+// 	{
+// 		T* p = new T;
+// 		RegDistributor(p);
+// 		return p;
+// 	}
+// 
+// 	template<class T>
+// 	inline T* GetDistributor() const
+// 	{
+// 		return static_cast<T*>(GetDistributor(T::Type));
+// 	}
 
 	template<class T>
 	inline T* RegRpcAction()
@@ -83,7 +87,7 @@ signals:
 	void signal_SessionStart(unsigned int uSID);
 	void signal_SessionEnd(unsigned int uSID);
 	void signal_SessionError(unsigned int uSID);
-	void signal_ReceiveData(unsigned int uSID, const QByteArray& baData, quint8 eType);
+	//void signal_ReceiveData(unsigned int uSID, const QByteArray& baData, quint8 eType);
 
 protected slots:
 	void slot_Listen(const QString& strHostAddr, quint16 uPort);
@@ -95,13 +99,15 @@ protected slots:
 
 protected:
 	RmSession* CreateSession(QTcpSocket* spSocket);
-	void ReceiveData(const RmSession* rSession, QByteArray& baData, quint8 eType);
-	
+	void SetReceiveDataDelegate(const ReceiveDataDelegate& dgReceiveData);
+
 	void InitActions();
 
 private:
 	QScopedPointer<Impl> m_pImpl;
 };
+
+typedef DistManager<RmComMgr> RmManager;
 
 };
 

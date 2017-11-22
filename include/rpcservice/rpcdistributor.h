@@ -16,20 +16,16 @@ class RPCSERVICE_EXPORT RpcDistributor
 public:
 	virtual ~RpcDistributor();
 
-	enum DisType { DT_JSON_REQ = 1, DT_JSON_REP };
+	enum DisType { DT_JSON_REQ = 1, DT_JSON_REP, DT_XML_REQ, DT_XML_REP };
 	virtual qint8 GetType() const = 0;
 
-protected:
+public:
+	void SetSendDataDelegate(const SendDataDelegate& dgSendData);
 	virtual void ReceiveData(unsigned int uSID, QByteArray& baData) = 0;
 	virtual void SendData(unsigned int uSID, const QByteArray& baData);
 
 protected:
-	void SetSendDataDelegate(const SendDataDelegate& dgSendData);
-
-protected:
 	SendDataDelegate m_dgSendData;
-	friend class RmManager;
-	friend class LcManager;
 };
 
 }

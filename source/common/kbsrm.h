@@ -6,12 +6,15 @@
 #include "rpcservice/rmmanager.h"
 #include "rpcservice/lcmanager.h"
 #include "rpcservice/rpctplrequest.hpp"
-#include "rpcservice/json/msmwjsondata.hpp"
-#include "rapidjson/msjson/msjsonserialize_qt.hpp"
 #include "rpcservice/rpctplreport.hpp"
 
+// #include "rpcservice/json/msmwjsondata.hpp"
+// #include "rapidjson/msjson/msjsonserialize_qt.hpp"
+#include "rpcservice/xml/msmwxmldata.hpp"
+#include "msserialize/xml/msxmlserialize_qt.hpp"
 
-typedef SingleTemplate<MSRPC::LcManager> KBSRM;
+
+typedef SingleTemplate<MSRPC::RmManager> KBSRM;
 
 class A
 {
@@ -71,8 +74,8 @@ namespace KB
 	typedef MSRPC::RpcTplRequest<KB::szReqTest2, void, void> KbReqTest2;
 
 
-	extern const char szRepReport[];
-	typedef MSRPC::RpcTplReport<KB::szRepReport, QString> KbRepReport;
+// 	extern const char szRepReport[];
+// 	typedef MSRPC::RpcTplReport<KB::szRepReport, QString> KbRepReport;
 
 
 	void InitKBSRM();

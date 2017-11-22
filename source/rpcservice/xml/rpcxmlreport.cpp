@@ -1,7 +1,5 @@
-#include "json/rpcjsonreport.h"
+#include "xml/rpcxmlreport.h"
 #include "rpcreportbase.h"
-#include "msserialize/json/msjsonserialize.hpp"
-#include "msserialize/json/msjsonadapter.hpp"
 #include "msmiddlewaredata.hpp"
 
 #include <memory>
@@ -11,7 +9,7 @@
 namespace MSRPC
 {
 	/*
-		JsonReport格式
+		XmlReport格式
 	{
 		"report":<报告名称>
 		"version":<接口版本号>
@@ -35,31 +33,32 @@ namespace MSRPC
 
 	typedef QHash<QLatin1String, RpcReportBase*> HsReport;
 
-	class RpcJsonReport::Impl
+	class RpcXmlReport::Impl
 	{
 	public:
 		HsReport hsReport;
 	};
 
-	RpcJsonReport::RpcJsonReport()
+	RpcXmlReport::RpcXmlReport()
 		: RpcDistributor()
 		, m_pImpl(new Impl)
 	{
 
 	}
 
-	RpcJsonReport::~RpcJsonReport()
+	RpcXmlReport::~RpcXmlReport()
 	{
 		qDeleteAll(m_pImpl->hsReport);
 	}
 
-	qint8 RpcJsonReport::GetType() const
+	qint8 RpcXmlReport::GetType() const
 	{
 		return DT_JSON_REP;
 	}
 
-	void RpcJsonReport::ReceiveData(unsigned int uSID, QByteArray& baData)
+	void RpcXmlReport::ReceiveData(unsigned int uSID, QByteArray& baData)
 	{
+		/*
 		SPtrDocument spRoot(new rapidjson::Document);
 		spRoot->Parse<0>(baData.data());
 		
@@ -71,21 +70,23 @@ namespace MSRPC
 			if (ciFind != m_pImpl->hsReport.constEnd())
 			{
 				unsigned int uVersion = (*spRoot)[szElemText[ET_VERSION]].GetUint();
-				(*ciFind)->RecvReport(uSID, &MSRPC::IArchive_r(MSRPC::JsonIArchive(spRoot, &(*spRoot)[szElemText[ET_PAYLOAD]], uVersion)));
+				(*ciFind)->RecvReport(uSID, &MSRPC::IArchive_r(MSRPC::XmlIArchive(spRoot, &(*spRoot)[szElemText[ET_PAYLOAD]], uVersion)));
 			}
 		}
+		*/
 	}
 	
-	void RpcJsonReport::RegReportBase(RpcReportBase* pReportBase)
+	void RpcXmlReport::RegReportBase(RpcReportBase* pReportBase)
 	{
-		pReportBase->SetReportDelegate(fastdelegate::MakeDelegate(this, &RpcJsonReport::SendDate));
+		pReportBase->SetReportDelegate(fastdelegate::MakeDelegate(this, &RpcXmlReport::SendDate));
 		m_pImpl->hsReport[QLatin1String(pReportBase->GetName())] = pReportBase;
 	}
 
-	void RpcJsonReport::SendDate(unsigned int uSID, const RpcReportBase* pBase, MsMiddleWareBase* mdData)
+	void RpcXmlReport::SendDate(unsigned int uSID, const RpcReportBase* pBase, MsMiddleWareBase* mdData)
 	{
+		/*
 		rapidjson::Value vValue;
-		JsonOArchive json(mdData->GetVersion());
+		XmlOArchive json(mdData->GetVersion());
 		json.SetCurNode(&vValue);
 		mdData->Bale(&OArchive_r(json));
 
@@ -101,9 +102,10 @@ namespace MSRPC
 		spRoot->Accept(writer);
 
 		m_dgSendData(uSID, baData, GetType());
+		*/
 	}
 
-	MSRPC::RpcReportBase* RpcJsonReport::GetReportBase(const char* szReportName) const
+	MSRPC::RpcReportBase* RpcXmlReport::GetReportBase(const char* szReportName) const
 	{
 		return m_pImpl->hsReport.value(QLatin1String(szReportName), 0);
 	}

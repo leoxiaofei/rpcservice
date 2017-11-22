@@ -1,11 +1,12 @@
 #include "testclient.h"
 #include "rpcservice/rpcactlink.h"
 #include "../common/kbsrm.h"
-#include "rpcservice/json/rpcjsonrequest.h"
 #include <QDateTime>
-#include "rpcservice/json/rpcjsonreport.h"
+#include "rpcservice/xml/rpcxmlrequest.h"
 
 using namespace KB;
+
+typedef MSRPC::RpcXmlRequest RpcRequest;
 
 TestClient::TestClient(QWidget *parent, Qt::WindowFlags flags)
 : QWidget(parent, flags)
@@ -19,19 +20,19 @@ TestClient::TestClient(QWidget *parent, Qt::WindowFlags flags)
 // 	connect(p, SIGNAL(sg_ReceiveMsg(unsigned int, const QString&)), 
 // 		this, SLOT(s_ReceiveMsg(unsigned int, const QString&)));
 	
-	MSRPC::RpcJsonRequest* jr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonRequest>();
+	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
 
-	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
-	{
-		reqPos->ConnectRespondReceiver(
-			fastdelegate::MakeDelegate(this, &TestClient::PosRespond));
-	}
-
-	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
-	{
-		reqPos->ConnectRespondReceiver(
-			fastdelegate::MakeDelegate(this, &TestClient::SetPosRespond));
-	}
+// 	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
+// 	{
+// 		reqPos->ConnectRespondReceiver(
+// 			fastdelegate::MakeDelegate(this, &TestClient::PosRespond));
+// 	}
+// 
+// 	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
+// 	{
+// 		reqPos->ConnectRespondReceiver(
+// 			fastdelegate::MakeDelegate(this, &TestClient::SetPosRespond));
+// 	}
 
 	if (KbReqTest* reqTest = jr->GetRequest<KbReqTest>())
 	{
@@ -43,13 +44,13 @@ TestClient::TestClient(QWidget *parent, Qt::WindowFlags flags)
 		KBSRM::Instance().GetRpcAction<MSRPC::RpcActLink>();
 	pRpcActLink->SetStateDelegate(fastdelegate::MakeDelegate(this, &TestClient::ConnectState));
 
-	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
-
-	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
-	{
-		rep->ConnectReportReceiver(
-			fastdelegate::MakeDelegate(this, &TestClient::TestReport));
-	}
+// 	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
+// 
+// 	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
+// 	{
+// 		rep->ConnectReportReceiver(
+// 			fastdelegate::MakeDelegate(this, &TestClient::TestReport));
+// 	}
 }
 
 TestClient::~TestClient()
@@ -126,27 +127,27 @@ void TestClient::on_btnSend_clicked()
 
 void TestClient::on_btnGetPos_clicked()
 {
-	MSRPC::RpcJsonRequest* jr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonRequest>();
-
-	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
-	{
-		reqPos->SendRequest(m_uServerId);
-	}
+// 	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
+// 
+// 	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
+// 	{
+// 		reqPos->SendRequest(m_uServerId);
+// 	}
 }
 
 void TestClient::on_btnSetPos_clicked()
 {
-	MSRPC::RpcJsonRequest* jr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonRequest>();
-
-	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
-	{
-		reqPos->SendRequest(m_uServerId, QPoint(3, 4));
-	}
+// 	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
+// 
+// 	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
+// 	{
+// 		reqPos->SendRequest(m_uServerId, QPoint(3, 4));
+// 	}
 }
 
 void TestClient::on_btnTest_clicked()
 {
-	MSRPC::RpcJsonRequest* jr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonRequest>();
+	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
 
 	if (KbReqTest* reqTest = jr->GetRequest<KbReqTest>())
 	{
@@ -159,7 +160,12 @@ void TestClient::on_btnTest_clicked()
 
 void TestClient::on_btnTest2_clicked()
 {
+	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
 
+	if (KbReqTest2* reqTest = jr->GetRequest<KbReqTest2>())
+	{
+		reqTest->SendRequest(m_uServerId);
+	}
 }
 
 void TestClient::on_btnDisconnect_clicked()

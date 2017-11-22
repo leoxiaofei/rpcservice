@@ -26,7 +26,10 @@ class RPCSERVICE_EXPORT RpcRequestBase : public QObject
 public:
 	virtual const char* GetName() const = 0;
 
-protected:
+public:
+	virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive) = 0;
+	virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive) = 0;
+
 	void SetRequestDelegate(const SendRequestDelegate& dgSendRequest);
 	void SetRespondDelegate(const SendRespondDelegate& dgSendRespond);
 	void SetSequenceDelegate(const SequenceDelegate& dgSequence);
@@ -35,15 +38,10 @@ protected:
 	Q_INVOKABLE void ActSendRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase);
 	Q_INVOKABLE void ActSendRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase);
 
-	virtual void RecvRequest(unsigned int uSID, unsigned int uSequence, IArchiveBase* iArchive) = 0;
-	virtual void RecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, IArchiveBase* iArchive) = 0;
-
 	Q_INVOKABLE virtual void ActRecvRequest(unsigned int uSID, unsigned int uSequence, MsMiddleWareBase* pBase) = 0;
 	Q_INVOKABLE virtual void ActRecvRespond(unsigned int uSID, unsigned int uSequence, bool bReturn, MsMiddleWareBase* pBase) = 0;
 
 protected:
-	friend class RpcJsonRequest;
-
 	SendRequestDelegate m_dgSendRequest;
 	SendRespondDelegate m_dgSendRespond;
 	SequenceDelegate m_dgSequence;

@@ -1,6 +1,6 @@
 #include "json/rpcjsonrequest.h"
-#include "rapidjson/msjson/msjsonserialize.hpp"
-#include "rapidjson/msjson/msjsonadapter.hpp"
+#include "msserialize/json/msjsonserialize.hpp"
+#include "msserialize/json/msjsonadapter.hpp"
 #include "rpcrequestbase.h"
 #include "mstools/idCreater.hpp"
 #include "msmiddlewaredata.hpp"

@@ -18,7 +18,7 @@ namespace MSRPC
 {
 	typedef QHash<QLatin1String, RpcActionBase*> HsAction;
 
-	class RmManager::Impl
+	class RmComMgr::Impl
 	{
 	public:
 		Impl()
@@ -29,14 +29,14 @@ namespace MSRPC
 		QPointer<QTcpServer> ptRmServer;
 
 		QMap<unsigned int, RmSession*> mapSession;
-		QMap<quint8, RpcDistributor*> mapDistributor;
+		ReceiveDataDelegate dgReceiveData;
 
 		HsAction hsAction;
 
 		bool bAutoDestroy;
 	};
 
-	RmManager::RmManager()
+	RmComMgr::RmComMgr()
 		: QObject(0)
 		, m_pImpl(new Impl)
 	{
@@ -48,7 +48,7 @@ namespace MSRPC
 		InitActions();
 	}
 
-	RmManager::~RmManager()
+	RmComMgr::~RmComMgr()
 	{
 		if (m_pImpl->thd.isRunning())
 		{
@@ -57,14 +57,14 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::Listen(const QString& strHostAddr, quint16 uPort)
+	void RmComMgr::Listen(const QString& strHostAddr, quint16 uPort)
 	{
 		qDebug() << QThread::currentThreadId();
 		QMetaObject::invokeMethod(this, "slot_Listen", 
 			Q_ARG(QString, strHostAddr), Q_ARG(quint16, uPort));
 	}
 
-	void RmManager::slot_Listen(const QString& strHostAddr, quint16 uPort)
+	void RmComMgr::slot_Listen(const QString& strHostAddr, quint16 uPort)
 	{
 		qDebug() << QThread::currentThreadId();
 
@@ -96,7 +96,7 @@ namespace MSRPC
 		} while (0);
 	}
 
-	void RmManager::slot_Disconnect(unsigned int uSID)
+	void RmComMgr::slot_Disconnect(unsigned int uSID)
 	{
 		QMap<unsigned int, RmSession*>::const_iterator ciFind =
 			m_pImpl->mapSession.constFind(uSID);
@@ -107,7 +107,7 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::slot_NewConnection()
+	void RmComMgr::slot_NewConnection()
 	{
 		QTcpSocket* pSocket = m_pImpl->ptRmServer->nextPendingConnection();
 
@@ -116,22 +116,22 @@ namespace MSRPC
 		emit signal_SessionStart(pSession->GetSID());
 	}
 
-	QTcpServer* RmManager::GetServer() const
+	QTcpServer* RmComMgr::GetServer() const
 	{
 		return m_pImpl->ptRmServer.data();
 	}
 
-	RmSession* RmManager::GetRmSession(unsigned int uSID) const
+	RmSession* RmComMgr::GetRmSession(unsigned int uSID) const
 	{
 		return m_pImpl->mapSession.value(uSID);
 	}
 
-	QThread* RmManager::GetThread() const
+	QThread* RmComMgr::GetThread() const
 	{
 		return &m_pImpl->thd;
 	}
 
-	void RmManager::SendData(unsigned int uSID, const QByteArray& baData, quint8 eType)
+	void RmComMgr::SendData(unsigned int uSID, const QByteArray& baData, quint8 eType)
 	{
 		if (&m_pImpl->thd == QThread::currentThread())
 		{
@@ -152,19 +152,19 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::Connect(const QString& strHostName, quint16 uPort)
+	void RmComMgr::Connect(const QString& strHostName, quint16 uPort)
 	{
 		QMetaObject::invokeMethod(this, "slot_Connect",
 			Q_ARG(QString, strHostName), Q_ARG(quint16, uPort));
 	}
 
-	void RmManager::Disconnect(unsigned int uSID)
+	void RmComMgr::Disconnect(unsigned int uSID)
 	{
 		QMetaObject::invokeMethod(this, "slot_Disconnect",
 			Q_ARG(unsigned int, uSID));
 	}
 
-	void RmManager::slot_Connect(const QString& strHostName, quint16 uPort)
+	void RmComMgr::slot_Connect(const QString& strHostName, quint16 uPort)
 	{
 		do
 		{
@@ -186,12 +186,11 @@ namespace MSRPC
 		} while (0);
 	}
 
-	RmSession* RmManager::CreateSession(QTcpSocket* spSocket)
+	RmSession* RmComMgr::CreateSession(QTcpSocket* spSocket)
 	{
 		unsigned int uSID = reinterpret_cast<unsigned int>(spSocket);
 		RmSession* pRmSession = new RmSession(uSID, spSocket);
-		pRmSession->SetReceiveDataDelegate(
-			fastdelegate::MakeDelegate(this, &RmManager::ReceiveData));
+		pRmSession->SetReceiveDataDelegate(m_pImpl->dgReceiveData);
 		m_pImpl->mapSession[uSID] = pRmSession;
 		QObject::connect(pRmSession, SIGNAL(destroyed(QObject*)),
 			this, SLOT(slot_SessionDestroyed(QObject*)));
@@ -201,7 +200,12 @@ namespace MSRPC
 		return pRmSession;
 	}
 
-	void RmManager::CloseAll()
+	void RmComMgr::SetReceiveDataDelegate(const ReceiveDataDelegate& dgReceiveData)
+	{
+		m_pImpl->dgReceiveData = dgReceiveData;
+	}
+
+	void RmComMgr::CloseAll()
 	{
 		foreach(RmSession* pSession, m_pImpl->mapSession)
 		{
@@ -209,7 +213,7 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::slot_SessionDestroyed(QObject *obj)
+	void RmComMgr::slot_SessionDestroyed(QObject *obj)
 	{
 		unsigned int uSID = m_pImpl->mapSession.key(static_cast<RmSession*>(obj), 0);
 		if (uSID != 0)
@@ -219,7 +223,7 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::slot_SessionError()
+	void RmComMgr::slot_SessionError()
 	{
 		if (RmSession* pSession = qobject_cast<RmSession*>(sender()))
 		{
@@ -232,64 +236,39 @@ namespace MSRPC
 		}
 	}
 
-	void RmManager::ReceiveData(const RmSession* rSession, QByteArray& baData, quint8 eType)
-	{
-		unsigned int uSID = rSession->GetSID();
-		QMap<quint8, RpcDistributor*>::const_iterator ciFind = m_pImpl->mapDistributor.constFind(eType);
-		if (ciFind != m_pImpl->mapDistributor.constEnd())
-		{
-			(*ciFind)->ReceiveData(uSID, baData);
-		}
-		else
-		{
-			emit signal_ReceiveData(uSID, baData, eType);
-		}
-	}
-
-	void RmManager::RegDistributor(RpcDistributor* pRmDistributor)
-	{
-		pRmDistributor->SetSendDataDelegate(fastdelegate::MakeDelegate(this, &MSRPC::RmManager::SendData));
-		m_pImpl->mapDistributor[pRmDistributor->GetType()] = pRmDistributor;
-	}
-
-	MSRPC::RpcDistributor* RmManager::GetDistributor(int nRmDisType) const
-	{
-		return m_pImpl->mapDistributor.value(nRmDisType, 0);
-	}
-
-	void RmManager::RegRpcActionBase(RpcActionBase* pRmAction)
+	void RmComMgr::RegRpcActionBase(RpcActionBase* pRmAction)
 	{
 		m_pImpl->hsAction[QLatin1String(pRmAction->GetActionName())] = pRmAction;
 	}
 
-	MSRPC::RpcActionBase* RmManager::GetRpcActionBase(const char* RmActionName) const
+	MSRPC::RpcActionBase* RmComMgr::GetRpcActionBase(const char* RmActionName) const
 	{
 		return m_pImpl->hsAction.value(QLatin1String(RmActionName), 0);
 	}
 
-	void RmManager::InitActions()
+	void RmComMgr::InitActions()
 	{
 		RpcActLink* p = RegRpcAction<RpcActLink>();
 		p->SetManager(this, 
-			fastdelegate::MakeDelegate(this, &RmManager::IsIdle));
+			fastdelegate::MakeDelegate(this, &RmComMgr::IsIdle));
 	}
 
-	void RmManager::SetAutoDestroyed(bool bAutoDestroy)
+	void RmComMgr::SetAutoDestroyed(bool bAutoDestroy)
 	{
 		m_pImpl->bAutoDestroy = bAutoDestroy;
 	}
 
-	bool RmManager::GetAutoDestroyed() const
+	bool RmComMgr::GetAutoDestroyed() const
 	{
 		return m_pImpl->bAutoDestroy;
 	}
 
-	const QMap<unsigned int, RmSession*>& RmManager::GetRmSessions() const
+	const QMap<unsigned int, RmSession*>& RmComMgr::GetRmSessions() const
 	{
 		return m_pImpl->mapSession;
 	}
 
-	bool RmManager::IsIdle() const
+	bool RmComMgr::IsIdle() const
 	{
 		return m_pImpl->mapSession.isEmpty();
 	}

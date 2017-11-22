@@ -1,7 +1,8 @@
 #include "kbsrm.h"
+#include "rpcservice\xml\rpcxmlrequest.h"
 
-#include "rpcservice/json/rpcjsonreport.h"
-#include "rpcservice/json/rpcjsonrequest.h"
+// #include "rpcservice/json/rpcjsonreport.h"
+// #include "rpcservice/json/rpcjsonrequest.h"
 
 
 namespace KB
@@ -26,20 +27,28 @@ namespace KB
 
 	void InitKBSRM()
 	{
-		MSRPC::RpcJsonRequest* pJsonRequest = 
-			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonRequest>();
-// 		pJsonRequest->RegRequest<KbReqShow>();
-// 		pJsonRequest->RegRequest<KbReqSize>();
- 		pJsonRequest->RegRequest<KbReqPos>();
-// 		pJsonRequest->RegRequest<KbReqSetSize>();
- 		pJsonRequest->RegRequest<KbReqSetPos>();
-		pJsonRequest->RegRequest<KbReqTest>();
-		pJsonRequest->RegRequest<KbReqTest2>();
+// 		MSRPC::RpcJsonRequest* pJsonRequest = 
+// 			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonRequest>();
+// // 		pJsonRequest->RegRequest<KbReqShow>();
+// // 		pJsonRequest->RegRequest<KbReqSize>();
+//  		pJsonRequest->RegRequest<KbReqPos>();
+// // 		pJsonRequest->RegRequest<KbReqSetSize>();
+//  		pJsonRequest->RegRequest<KbReqSetPos>();
+// 		pJsonRequest->RegRequest<KbReqTest>();
+// 		pJsonRequest->RegRequest<KbReqTest2>();
 
-		MSRPC::RpcJsonReport* pJsonReport =
-			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonReport>();
+// 		MSRPC::RpcJsonReport* pJsonReport =
+// 			KBSRM::Instance().RegDistributor<MSRPC::RpcJsonReport>();
+// 
+// 		pJsonReport->RegReport<KbRepReport>();
 
-		pJsonReport->RegReport<KbRepReport>();
+		MSRPC::RpcXmlRequest* pXmlRequest = 
+			KBSRM::Instance().RegDistributor<MSRPC::RpcXmlRequest>();
+//  		pXmlRequest->RegRequest<KbReqPos>();
+//  		pXmlRequest->RegRequest<KbReqSetPos>();
+		pXmlRequest->RegRequest<KbReqTest>();
+		pXmlRequest->RegRequest<KbReqTest2>();
+
 	}
 
 }

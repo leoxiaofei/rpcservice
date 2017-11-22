@@ -10,7 +10,7 @@ class QLocalSocket;
 
 namespace MSRPC
 {
-	typedef fastdelegate::FastDelegate3<const class LcSession*, QByteArray&, quint8> ReceiveDataDelegate;
+	typedef fastdelegate::FastDelegate3<unsigned int, QByteArray&, quint8> ReceiveDataDelegate;
 
 	class RPCSERVICE_EXPORT LcSession : public QObject
 	{

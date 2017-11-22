@@ -24,6 +24,7 @@ protected:
 	void PosRequest(unsigned int uSID, MSRPC::Responder<QPoint>& ret);
 	void SetPosRequest(unsigned int uSID, const QPoint& pos, MSRPC::Responder<void>& ret);
 	void TestRequest(unsigned int uSID, const CustomDataT& pos, MSRPC::Responder<CustomDataR>& ret);
+	void TestRequest2(unsigned int uSID, MSRPC::Responder<void>& ret);
 
 protected slots:
 	void s_ReceiveMsg(unsigned int uConnectId, const QString& strText);

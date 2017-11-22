@@ -165,6 +165,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\..\source\rpcservice\distmanager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\source\rpcservice\lcmanager.cpp"
 				>
 			</File>
@@ -212,12 +216,28 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="xml"
+				>
+				<File
+					RelativePath="..\..\..\..\source\rpcservice\xml\rpcxmlreport.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\source\rpcservice\xml\rpcxmlrequest.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\..\include\rpcservice\distmanager.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\..\include\rpcservice\lcmanager.h"
 				>
@@ -495,6 +515,22 @@
 				</File>
 				<File
 					RelativePath="..\..\..\..\include\mstools\singletemplate.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="xml"
+				>
+				<File
+					RelativePath="..\..\..\..\include\rpcservice\xml\msmwxmldata.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\include\rpcservice\xml\rpcxmlreport.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\..\include\rpcservice\xml\rpcxmlrequest.h"
 					>
 				</File>
 			</Filter>

@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="rpcserver"
 	ProjectGUID="{4DCE5A38-EF0E-4C38-84E6-4298E7D25008}"
+	RootNamespace="rpcserver"
 	Keyword="Qt4VSv1.0"
 	TargetFrameworkVersion="0"
 	>
@@ -128,7 +129,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				AdditionalLibraryDirectories="&quot;$(QTDIR)\lib&quot;;&quot;$(TargetDir)&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 			/>
 			<Tool
 				Name="VCALinkTool"

@@ -22,18 +22,16 @@ namespace MSRPC
 	public:
 		virtual const char* GetName() const = 0;
 
-	protected:
+	public:
 		void SetReportDelegate(const SendReportDelegate& dgSendReport);
-
-	protected:
-		Q_INVOKABLE void ActSendReport(unsigned int uSID, MsMiddleWareBase* pBase);
 
 		virtual void RecvReport(unsigned int uSID, IArchiveBase* iArchive) = 0;
 
+	protected:
+		Q_INVOKABLE void ActSendReport(unsigned int uSID, MsMiddleWareBase* pBase);
 		Q_INVOKABLE virtual void ActRecvReport(unsigned int uSID, MsMiddleWareBase* pBase) = 0;
 
 	protected:
-		friend class RpcJsonReport;
 		SendReportDelegate						m_dgSendReport;
 	};
 

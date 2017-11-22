@@ -151,7 +151,7 @@ namespace MSRPC
 
 			if (rmHeader.uTotalBag == rmHeader.uCurBag)
 			{
-				m_pImpl->dgReceiveData(this, baReceive, rmHeader.uType);
+				m_pImpl->dgReceiveData(GetSID(), baReceive, rmHeader.uType);
 				baReceive.clear();
 			}
 

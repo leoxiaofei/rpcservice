@@ -1,16 +1,20 @@
 #include "testserver.h"
 #include "rpcservice\rpcactlink.h"
-#include "rpcservice\json\rpcjsonrequest.h"
 #include "../common/kbsrm.h"
 
 #include <QDateTime>
-#include "rpcservice\json\rpcjsonreport.h"
+#include "rpcservice\rpcservice.h"
+#include "rpcservice\xml\rpcxmlrequest.h"
 
 using namespace KB;
+
+typedef MSRPC::RpcXmlRequest RpcRequest;
 
 TestServer::TestServer(QWidget *parent, Qt::WindowFlags flags)
 : QWidget(parent, flags)
 {
+	RpcService a;
+
 	ui.setupUi(this);
 
 	KB::InitKBSRM();
@@ -30,25 +34,31 @@ TestServer::TestServer(QWidget *parent, Qt::WindowFlags flags)
 	pRpcActLink->SetStateDelegate(fastdelegate::MakeDelegate(this, &TestServer::ConnectState));
 
 
-	MSRPC::RpcJsonRequest* jr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonRequest>();
+	RpcRequest* jr = KBSRM::Instance().GetDistributor<RpcRequest>();
 
 	///连接回调
-	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
-	{
-		reqPos->ConnectRequestReceiver(
-			fastdelegate::MakeDelegate(this, &TestServer::PosRequest));
-	}
-
-	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
-	{
-		reqPos->ConnectRequestReceiver(
-			fastdelegate::MakeDelegate(this, &TestServer::SetPosRequest));
-	}
+// 	if (KbReqPos* reqPos = jr->GetRequest<KbReqPos>())
+// 	{
+// 		reqPos->ConnectRequestReceiver(
+// 			fastdelegate::MakeDelegate(this, &TestServer::PosRequest));
+// 	}
+// 
+// 	if (KbReqSetPos* reqPos = jr->GetRequest<KbReqSetPos>())
+// 	{
+// 		reqPos->ConnectRequestReceiver(
+// 			fastdelegate::MakeDelegate(this, &TestServer::SetPosRequest));
+// 	}
 
 	if (KbReqTest* reqTest = jr->GetRequest<KbReqTest>())
 	{
 		reqTest->ConnectRequestReceiver(
 			fastdelegate::MakeDelegate(this, &TestServer::TestRequest));
+	}
+
+	if (KbReqTest2* reqTest2 = jr->GetRequest<KbReqTest2>())
+	{
+		reqTest2->ConnectRequestReceiver(
+			fastdelegate::MakeDelegate(this, &TestServer::TestRequest2));
 	}
 }
 
@@ -111,6 +121,11 @@ void TestServer::TestRequest(unsigned int uSID,
 	ret(true, r);
 }
 
+void TestServer::TestRequest2(unsigned int uSID, MSRPC::Responder<void>& ret)
+{
+	ret(true);
+}
+
 void TestServer::s_ReceiveMsg( unsigned int uConnectId, const QString& strText )
 {
 	Log(QString("Client %1 Say: %2").arg(uConnectId).arg(strText));
@@ -136,17 +151,17 @@ void TestServer::on_btnDisconnect_clicked()
 
 void TestServer::on_btnReport_clicked()
 {
-	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
-
-	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
-	{
-		foreach(QListWidgetItem *item, ui.lvUser->selectedItems())
-		{
-			unsigned int uSID = item->text().toUInt(0, 16);
-
-			rep->SendReport(uSID, QString::fromLocal8Bit("这是服务主动推送报告测试。"));
-		}
-	}
+// 	MSRPC::RpcJsonReport* jrr = KBSRM::Instance().GetDistributor<MSRPC::RpcJsonReport>();
+// 
+// 	if (KbRepReport* rep = jrr->GetReport<KbRepReport>())
+// 	{
+// 		foreach(QListWidgetItem *item, ui.lvUser->selectedItems())
+// 		{
+// 			unsigned int uSID = item->text().toUInt(0, 16);
+// 
+// 			rep->SendReport(uSID, QString::fromLocal8Bit("这是服务主动推送报告测试。"));
+// 		}
+// 	}
 
 
 }

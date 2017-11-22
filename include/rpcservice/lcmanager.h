@@ -2,6 +2,8 @@
 #define __LCMANAGER_H__
 
 #include "rpcservice_global.h"
+#include "mstools/FastDelegate.h"
+#include "distmanager.h"
 
 #include <QObject>
 #include <QMap>
@@ -16,13 +18,15 @@ namespace MSRPC
 	class RpcDistributor;
 	class RpcActionBase;
 
-class RPCSERVICE_EXPORT LcManager : public QObject
+	typedef fastdelegate::FastDelegate3<unsigned int, QByteArray&, quint8> ReceiveDataDelegate;
+
+class RPCSERVICE_EXPORT LcComMgr : public QObject
 {
 	Q_OBJECT
 	class Impl;
 public:
-	LcManager();
-	~LcManager();
+	LcComMgr();
+	~LcComMgr();
 
 	void Listen(const QString& strHostAddr, quint16 uPort);
 	void Connect(const QString& strHostName, quint16 uPort);
@@ -34,23 +38,6 @@ public:
 	QLocalServer* GetServer() const;
 	LcSession* GetLcSession(unsigned int uSID) const;
 	QThread* GetThread() const;
-
-	void RegDistributor(RpcDistributor* pDistributor);
-	RpcDistributor* GetDistributor(int nDisType) const;
-
-	template<class T>
-	T* RegDistributor()
-	{
-		T* t = new T;
-		RegDistributor(t);
-		return t;
-	}
-
-	template<class T>
-	T* GetDistributor() const
-	{
-		return static_cast<T*>(GetDistributor(T::Type));
-	}
 
 	template<class T>
 	T* RegRpcAction()
@@ -103,6 +90,8 @@ protected:
 private:
 	QScopedPointer<Impl> m_pImpl;
 };
+
+typedef DistManager<LcComMgr> LcManager;
 
 };
 

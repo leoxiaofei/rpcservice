@@ -23,7 +23,7 @@ namespace MSRPC
 		return strHostAddr + QString::number(uPort);
 	}
 
-	class LcManager::Impl
+	class LcComMgr::Impl
 	{
 	public:
 		Impl()
@@ -34,14 +34,14 @@ namespace MSRPC
 		QPointer<QLocalServer> ptServer;
 
 		QMap<unsigned int, LcSession*> mapSession;
-		QMap<quint8, RpcDistributor*> mapDistributor;
+		ReceiveDataDelegate dgReceiveData;
 
 		HsAction hsAction;
 
 		bool bAutoDestroy;
 	};
 
-	LcManager::LcManager()
+	LcComMgr::LcComMgr()
 		: QObject(0)
 		, m_pImpl(new Impl)
 	{
@@ -52,7 +52,7 @@ namespace MSRPC
 		InitActions();
 	}
 
-	LcManager::~LcManager()
+	LcComMgr::~LcComMgr()
 	{
 		if (m_pImpl->thd.isRunning())
 		{
@@ -61,14 +61,14 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::Listen(const QString& strHostAddr, quint16 uPort)
+	void LcComMgr::Listen(const QString& strHostAddr, quint16 uPort)
 	{
 		qDebug() << QThread::currentThreadId();
 		QMetaObject::invokeMethod(this, "slot_Listen", 
 			Q_ARG(QString, strHostAddr), Q_ARG(quint16, uPort));
 	}
 
-	void LcManager::slot_Listen(const QString& strHostAddr, quint16 uPort)
+	void LcComMgr::slot_Listen(const QString& strHostAddr, quint16 uPort)
 	{
 		qDebug() << QThread::currentThreadId();
 
@@ -101,7 +101,7 @@ namespace MSRPC
 
 	}
 
-	void LcManager::slot_Disconnect(unsigned int uSID)
+	void LcComMgr::slot_Disconnect(unsigned int uSID)
 	{
 		QMap<unsigned int, LcSession*>::const_iterator ciFind =
 			m_pImpl->mapSession.constFind(uSID);
@@ -112,7 +112,7 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::slot_NewConnection()
+	void LcComMgr::slot_NewConnection()
 	{
 		QLocalSocket* pSocket = m_pImpl->ptServer->nextPendingConnection();
 
@@ -121,22 +121,22 @@ namespace MSRPC
 		emit signal_SessionStart(pSession->GetSID());
 	}
 
-	QLocalServer* LcManager::GetServer() const
+	QLocalServer* LcComMgr::GetServer() const
 	{
 		return m_pImpl->ptServer.data();
 	}
 
-	LcSession* LcManager::GetLcSession(unsigned int uSID) const
+	LcSession* LcComMgr::GetLcSession(unsigned int uSID) const
 	{
 		return m_pImpl->mapSession.value(uSID);
 	}
 
-	QThread* LcManager::GetThread() const
+	QThread* LcComMgr::GetThread() const
 	{
 		return &m_pImpl->thd;
 	}
 
-	void LcManager::SendData(unsigned int uSID, const QByteArray& baData, quint8 eType)
+	void LcComMgr::SendData(unsigned int uSID, const QByteArray& baData, quint8 eType)
 	{
 		if (&m_pImpl->thd == QThread::currentThread())
 		{
@@ -158,19 +158,19 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::Connect(const QString& strHostName, quint16 uPort)
+	void LcComMgr::Connect(const QString& strHostName, quint16 uPort)
 	{
 		QMetaObject::invokeMethod(this, "slot_Connect",
 			Q_ARG(QString, strHostName), Q_ARG(quint16, uPort));
 	}
 
-	void LcManager::Disconnect(unsigned int uSID)
+	void LcComMgr::Disconnect(unsigned int uSID)
 	{
 		QMetaObject::invokeMethod(this, "slot_Disconnect",
 			Q_ARG(unsigned int, uSID));
 	}
 
-	void LcManager::slot_Connect(const QString& strHostName, quint16 uPort)
+	void LcComMgr::slot_Connect(const QString& strHostName, quint16 uPort)
 	{
 		do
 		{
@@ -192,12 +192,11 @@ namespace MSRPC
 		} while (0);
 	}
 
-	LcSession* LcManager::CreateSession(QLocalSocket* spSocket)
+	LcSession* LcComMgr::CreateSession(QLocalSocket* spSocket)
 	{
 		unsigned int uSID = reinterpret_cast<unsigned int>(spSocket);
 		LcSession* pLcSession = new LcSession(uSID, spSocket);
-		pLcSession->SetReceiveDataDelegate(
-			fastdelegate::MakeDelegate(this, &LcManager::ReceiveData));
+		pLcSession->SetReceiveDataDelegate(m_pImpl->dgReceiveData);
 		m_pImpl->mapSession[uSID] = pLcSession;
 		QObject::connect(pLcSession, SIGNAL(destroyed(QObject*)),
 			this, SLOT(slot_SessionDestroyed(QObject*)));
@@ -207,7 +206,7 @@ namespace MSRPC
 		return pLcSession;
 	}
 
-	void LcManager::CloseAll()
+	void LcComMgr::CloseAll()
 	{
 		foreach(LcSession* pSession, m_pImpl->mapSession)
 		{
@@ -215,7 +214,7 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::slot_SessionDestroyed(QObject *obj)
+	void LcComMgr::slot_SessionDestroyed(QObject *obj)
 	{
 		unsigned int uSID = m_pImpl->mapSession.key(static_cast<LcSession*>(obj), 0);
 		if (uSID != 0)
@@ -225,7 +224,7 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::slot_SessionError()
+	void LcComMgr::slot_SessionError()
 	{
 		if (LcSession* pSession = qobject_cast<LcSession*>(sender()))
 		{
@@ -238,64 +237,38 @@ namespace MSRPC
 		}
 	}
 
-	void LcManager::ReceiveData(const LcSession* rSession, QByteArray& baData, quint8 eType)
-	{
-		unsigned int uSID = rSession->GetSID();
-		QMap<quint8, RpcDistributor*>::const_iterator ciFind = m_pImpl->mapDistributor.constFind(eType);
-		if (ciFind != m_pImpl->mapDistributor.constEnd())
-		{
-			//qDebug()<<baData;
-			(*ciFind)->ReceiveData(uSID, baData);
-		}
-		else
-		{
-			emit signal_ReceiveData(uSID, baData, eType);
-		}
-	}
-
-	void LcManager::RegDistributor(RpcDistributor* pRmDistributor)
-	{
-		pRmDistributor->SetSendDataDelegate(fastdelegate::MakeDelegate(this, &MSRPC::LcManager::SendData));
-		m_pImpl->mapDistributor[pRmDistributor->GetType()] = pRmDistributor;
-	}
-
-	MSRPC::RpcDistributor* LcManager::GetDistributor(int nRmDisType) const
-	{
-		return m_pImpl->mapDistributor.value(nRmDisType, 0);
-	}
-
-	void LcManager::RegRpcActionBase(RpcActionBase* pRmAction)
+	void LcComMgr::RegRpcActionBase(RpcActionBase* pRmAction)
 	{
 		m_pImpl->hsAction[QLatin1String(pRmAction->GetActionName())] = pRmAction;
 	}
 
-	MSRPC::RpcActionBase* LcManager::GetRpcActionBase(const char* RmActionName) const
+	MSRPC::RpcActionBase* LcComMgr::GetRpcActionBase(const char* RmActionName) const
 	{
 		return m_pImpl->hsAction.value(QLatin1String(RmActionName), 0);
 	}
 
-	void LcManager::InitActions()
+	void LcComMgr::InitActions()
 	{
 		RpcActLink* p = RegRpcAction<RpcActLink>();
-		p->SetManager(this,	fastdelegate::MakeDelegate(this, &LcManager::IsIdle));
+		p->SetManager(this,	fastdelegate::MakeDelegate(this, &LcComMgr::IsIdle));
 	}
 
-	void LcManager::SetAutoDestroyed(bool bAutoDestroy)
+	void LcComMgr::SetAutoDestroyed(bool bAutoDestroy)
 	{
 		m_pImpl->bAutoDestroy = bAutoDestroy;
 	}
 
-	bool LcManager::GetAutoDestroyed() const
+	bool LcComMgr::GetAutoDestroyed() const
 	{
 		return m_pImpl->bAutoDestroy;
 	}
 
-	const QMap<unsigned int, LcSession*>& LcManager::GetLcSessions() const
+	const QMap<unsigned int, LcSession*>& LcComMgr::GetLcSessions() const
 	{
 		return m_pImpl->mapSession;
 	}
 
-	bool LcManager::IsIdle() const
+	bool LcComMgr::IsIdle() const
 	{
 		return m_pImpl->mapSession.isEmpty();
 	}
